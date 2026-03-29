@@ -4,19 +4,57 @@
   "version": "1.0.0",
   "type": "module",
   "main": "dist-electron/main.js",
+  "author": "KenzBilal",
+  "description": "A 3D humanoid robot programming lab with scripting, animation editor, and AI generation",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
     "electron": "vite build && electron .",
-    "clean": "rm -rf dist dist-electron",
+    "dist": "vite build && electron-builder --linux",
+    "dist:win": "vite build && electron-builder --win",
+    "dist:mac": "vite build && electron-builder --mac",
+    "publish": "vite build && electron-builder --linux -p always",
+    "clean": "rm -rf dist dist-electron release",
     "lint": "tsc --noEmit"
+  },
+  "build": {
+    "appId": "com.humanoidcodelab.app",
+    "productName": "Humanoid Code Lab",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "dist-electron/**/*",
+      "!node_modules/**/{test,__tests__,tests}/**"
+    ],
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "KenzBilal",
+        "repo": "HumanoidCodeLab"
+      }
+    ],
+    "linux": {
+      "target": "AppImage",
+      "category": "Development",
+      "icon": "dist/favicon.ico"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "dist/favicon.ico"
+    },
+    "mac": {
+      "target": "dmg"
+    }
   },
   "dependencies": {
     "@google/genai": "^1.29.0",
     "@tailwindcss/vite": "^4.1.14",
     "@vitejs/plugin-react": "^5.0.4",
     "dotenv": "^17.2.3",
+    "electron-updater": "^6.8.3",
     "express": "^4.21.2",
     "lucide-react": "^0.546.0",
     "motion": "^12.23.24",
@@ -33,6 +71,7 @@
     "@types/three": "^0.183.1",
     "autoprefixer": "^10.4.21",
     "electron": "^41.1.0",
+    "electron-builder": "^26.8.1",
     "tailwindcss": "^4.1.14",
     "tsx": "^4.21.0",
     "typescript": "~5.8.2",

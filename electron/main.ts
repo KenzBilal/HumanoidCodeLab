@@ -5,8 +5,13 @@ import { GoogleGenAI } from '@google/genai';
 
 let mainWindow: BrowserWindow | null = null;
 
-const DIST = path.join(__dirname, '../dist');
-const ELECTRON_DIST = path.join(__dirname);
+const isPackaged = app.isPackaged;
+const DIST = isPackaged
+  ? path.join(process.resourcesPath, 'app.asar', 'dist')
+  : path.join(__dirname, '../dist');
+const ELECTRON_DIST = isPackaged
+  ? path.join(process.resourcesPath, 'app.asar', 'dist-electron')
+  : __dirname;
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -37,11 +42,10 @@ function createWindow() {
     }
   );
 
-  // In dev, load from Vite dev server. In production, load from built files.
-  if (process.env.VITE_DEV_SERVER_URL) {
-    mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL);
-  } else {
+  if (isPackaged) {
     mainWindow.loadFile(path.join(DIST, 'index.html'));
+  } else {
+    mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL || `http://localhost:5173`);
   }
 
   mainWindow.on('closed', () => {
@@ -49,7 +53,7 @@ function createWindow() {
   });
 }
 
-// IPC: Save file to disk via native dialog
+// ── IPC: Save file ──────────────────────────────────────────
 ipcMain.handle('save-file', async (_event, content: string) => {
   if (!mainWindow) return { success: false, error: 'No window available' };
 
@@ -62,9 +66,7 @@ ipcMain.handle('save-file', async (_event, content: string) => {
     ],
   });
 
-  if (canceled || !filePath) {
-    return { cancelled: true };
-  }
+  if (canceled || !filePath) return { cancelled: true };
 
   try {
     writeFileSync(filePath, content, 'utf-8');
@@ -74,6 +76,7 @@ ipcMain.handle('save-file', async (_event, content: string) => {
   }
 });
 
+// ── IPC: AI Generate ────────────────────────────────────────
 ipcMain.handle('ai-generate', async (_event, prompt) => {
   const apiKey = process.env.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY;
   if (!apiKey) return { error: 'No API key configured' };
@@ -111,15 +114,12 @@ The robot supports the following commands:
 - robot.wait(seconds=N)
 - robot.play(animation='name')
 
-Generate ONLY the script code. Do not include markdown formatting like \`\`\`python. Do not include explanations. Just the code.`;
+Generate ONLY the script code. Do not include markdown formatting. Just the code.`;
 
     const response = await ai.models.generateContent({
       model: 'gemini-2.0-flash-exp',
       contents: prompt,
-      config: {
-        systemInstruction,
-        temperature: 0.2,
-      }
+      config: { systemInstruction, temperature: 0.2 }
     });
 
     let generatedCode = response.text || '';
@@ -130,13 +130,72 @@ Generate ONLY the script code. Do not include markdown formatting like \`\`\`pyt
   }
 });
 
-// IPC: Serial communication placeholder for future IoT/robot bridging
+// ── IPC: Serial placeholder ─────────────────────────────────
 ipcMain.handle('serial-communicate', async (_event, command: string) => {
-  // Placeholder — will be implemented with serialport library
   console.log('[serial-communicate] Received command:', command);
   return { success: false, error: 'Serial communication not yet implemented' };
 });
 
+// ── IPC: Version ────────────────────────────────────────────
+ipcMain.handle('get-version', () => app.getVersion());
+
+// ── IPC: Auto-Update ────────────────────────────────────────
+ipcMain.handle('check-for-update', async () => {
+  if (!isPackaged) return { checking: false, message: 'Updates only available in packaged app' };
+
+  try {
+    const { autoUpdater } = await import('electron-updater');
+    const updater = autoUpdater;
+
+    updater.on('checking-for-update', () => {
+      mainWindow?.webContents.send('update-event', { type: 'checking' });
+    });
+
+    updater.on('update-available', (info) => {
+      mainWindow?.webContents.send('update-event', { type: 'available', version: info.version });
+    });
+
+    updater.on('update-not-available', () => {
+      mainWindow?.webContents.send('update-event', { type: 'not-available' });
+    });
+
+    updater.on('download-progress', (progress) => {
+      mainWindow?.webContents.send('update-event', {
+        type: 'progress',
+        percent: Math.round(progress.percent),
+        bytesPerSecond: progress.bytesPerSecond,
+        transferred: progress.transferred,
+        total: progress.total
+      });
+    });
+
+    updater.on('update-downloaded', (info) => {
+      mainWindow?.webContents.send('update-event', { type: 'downloaded', version: info.version });
+    });
+
+    updater.on('error', (err) => {
+      mainWindow?.webContents.send('update-event', { type: 'error', message: err.message });
+    });
+
+    updater.autoDownload = true;
+    updater.autoInstallOnAppQuit = false;
+    await updater.checkForUpdates();
+    return { checking: true };
+  } catch (err: any) {
+    return { checking: false, message: err.message };
+  }
+});
+
+ipcMain.handle('install-update', async () => {
+  try {
+    const { autoUpdater } = await import('electron-updater');
+    autoUpdater.quitAndInstall(false, true);
+  } catch (err: any) {
+    return { error: err.message };
+  }
+});
+
+// ── App Lifecycle ───────────────────────────────────────────
 app.whenReady().then(createWindow);
 
 app.on('window-all-closed', () => {
