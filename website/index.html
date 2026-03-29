@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- SEO -->
+  <title>Humanoid Code Lab — Program 3D Robots with AI</title>
+  <meta name="description" content="Download Humanoid Code Lab — the cross-platform desktop IDE for programming 3D humanoid robots. Features Monaco Editor, multi-provider AI generation, visual step debugger, and an interactive learning curriculum." />
+  <meta name="keywords" content="humanoid robot programming, 3D robot IDE, AI code generator, educational coding, Electron app, Python scripting, Three.js" />
+  <meta name="author" content="KenzBilal" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Humanoid Code Lab — Program 3D Robots with AI" />
+  <meta property="og:description" content="Write Python-like scripts to animate a 3D humanoid robot. AI generation, step-by-step visual debugger, learning curriculum. Free download for Windows, Linux, Mac." />
+  <meta property="og:site_name" content="Humanoid Code Lab" />
+
+  <!-- Theme -->
+  <meta name="theme-color" content="#0e1117" />
+  <meta name="color-scheme" content="dark" />
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ═══ Three.js 3D Canvas Background ═══ -->
+<canvas id="robot-canvas"></canvas>
+
+<!-- ═══ Page Content ═══ -->
+<div class="page-wrapper">
+
+  <!-- ─── Navbar ──────────────────────────────────────────────── -->
+  <nav class="navbar">
+    <div class="container">
+      <a href="#" class="nav-logo">
+        <div class="logo-icon">🤖</div>
+        Humanoid Code Lab
+      </a>
+      <ul class="nav-links">
+        <li><a href="#features">Features</a></li>
+        <li><a href="#code">DSL</a></li>
+        <li><a href="#download">Download</a></li>
+        <li><a href="#support">Support</a></li>
+        <li><a href="#download" class="nav-cta">Get the App</a></li>
+      </ul>
+      <button class="nav-toggle" aria-label="Open menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ─── Hero ────────────────────────────────────────────────── -->
+  <section class="hero" id="hero">
+    <div class="container">
+      <div class="hero-content">
+        <div class="hero-badge">
+          <span class="pulse"></span>
+          V1.0 Production Release
+        </div>
+        <h1>
+          Program<br/>
+          <span class="gradient">3D Robots</span><br/>
+          with AI.
+        </h1>
+        <p>
+          Write Python-like scripts to control a fully articulated 3D humanoid.
+          Generate complex routines with AI, debug line-by-line with a visual stepper,
+          and learn through interactive coding challenges — all in one beautiful desktop IDE.
+        </p>
+        <div class="hero-actions">
+          <a href="#download" class="btn btn-primary">
+            ⬇ Download Free
+          </a>
+          <a href="#demo" class="btn btn-secondary">
+            ▶ Watch Demo
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Demo Video ──────────────────────────────────────────── -->
+  <section class="video-section" id="demo">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-label">// DEMO</span>
+        <h2 class="section-title">See It in Action</h2>
+        <p class="section-desc">Watch the intro video to see how Humanoid Code Lab brings code to life.</p>
+      </div>
+      <div class="video-wrapper reveal" id="video-container">
+        <!-- Replace the placeholder below with your video:
+             1. Add your .mp4 file as "intro.mp4" in this folder
+             2. Uncomment the <video> tag below
+             3. Remove the .video-placeholder div -->
+        <!-- <video src="intro.mp4" controls poster="poster.jpg"></video> -->
+        <div class="video-placeholder">
+          <div class="play-btn">▶</div>
+          <p>Intro video coming soon</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Features ────────────────────────────────────────────── -->
+  <section class="features-section" id="features">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-label">// FEATURES</span>
+        <h2 class="section-title">Everything You Need to<br/>Bring Robots to Life</h2>
+        <p class="section-desc">A complete desktop environment for learning, building, and experimenting with humanoid robot motion.</p>
+      </div>
+      <div class="features-grid">
+
+        <div class="feature-card reveal">
+          <div class="feature-icon blue">⌨️</div>
+          <h3>Monaco Editor</h3>
+          <p>The same engine behind VS Code. Full IntelliSense auto-complete for every <code>robot.*</code> command, live syntax highlighting, and bracket matching.</p>
+        </div>
+
+        <div class="feature-card reveal">
+          <div class="feature-icon purple">✨</div>
+          <h3>Multi-Provider AI</h3>
+          <p>Describe your robot routine in plain English. Generate scripts via Google Gemini, OpenAI GPT-4o, or Anthropic Claude — switch providers in one click.</p>
+        </div>
+
+        <div class="feature-card reveal">
+          <div class="feature-icon green">🐛</div>
+          <h3>Visual Step Debugger</h3>
+          <p>Execute your script line-by-line. The editor highlights the current instruction while the 3D robot performs the action in real-time.</p>
+        </div>
+
+        <div class="feature-card reveal">
+          <div class="feature-icon orange">🎓</div>
+          <h3>Training Curriculum</h3>
+          <p>Interactive coding puzzles that teach robot programming concepts. Write code, click "Check", and the system validates your logic against goal conditions.</p>
+        </div>
+
+        <div class="feature-card reveal">
+          <div class="feature-icon red">🎬</div>
+          <h3>Keyframe Animator</h3>
+          <p>Create custom animations with per-joint rotation sliders and a timeline. Scrub through your creation and play it back on the 3D model instantly.</p>
+        </div>
+
+        <div class="feature-card reveal">
+          <div class="feature-icon blue">🔒</div>
+          <h3>Secure by Design</h3>
+          <p>API keys encrypted via the OS native keychain using Electron's <code>safeStorage</code>. Nothing is stored in plain text — ever.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Code / DSL ──────────────────────────────────────────── -->
+  <section class="code-section" id="code">
+    <div class="container">
+      <div class="code-layout">
+        <div class="code-info reveal">
+          <span class="section-label">// SCRIPTING DSL</span>
+          <h2 class="section-title">Write Code.<br/>Control the Robot.</h2>
+          <p class="section-desc">Python-like syntax with variables, loops, conditionals, and 25+ built-in commands. No boilerplate — just express your intent.</p>
+          <ul>
+            <li><span class="check">✓</span> Variables: <code>steps = 3</code></li>
+            <li><span class="check">✓</span> Conditionals: <code>if / elif / else</code></li>
+            <li><span class="check">✓</span> Loops: <code>for i in range(N)</code></li>
+            <li><span class="check">✓</span> Comparison: <code>==  !=  &lt;  &gt;  &lt;=  &gt;=  and  or  not</code></li>
+            <li><span class="check">✓</span> Custom animations: <code>robot.play(animation='dance')</code></li>
+          </ul>
+        </div>
+
+        <div class="code-preview reveal">
+          <div class="code-titlebar">
+            <div class="code-dot r"></div>
+            <div class="code-dot y"></div>
+            <div class="code-dot g"></div>
+            <span>robot_script.py</span>
+          </div>
+          <div class="code-body">
+<span class="line-num"> 1</span><span class="comment"># Walk and wave routine</span>
+<span class="line-num"> 2</span><span class="keyword">steps</span> = <span class="number">5</span>
+<span class="line-num"> 3</span>
+<span class="line-num"> 4</span><span class="func">robot.walk.forward</span>(steps=<span class="keyword">steps</span>)
+<span class="line-num"> 5</span><span class="func">robot.right_hand.wave</span>(times=<span class="number">3</span>)
+<span class="line-num"> 6</span>
+<span class="line-num"> 7</span><span class="keyword">if</span> steps > <span class="number">3</span>:
+<span class="line-num"> 8</span>    <span class="func">robot.turn.left</span>(angle=<span class="number">90</span>)
+<span class="line-num"> 9</span>    <span class="func">robot.jump</span>(height=<span class="number">1.5</span>)
+<span class="line-num">10</span><span class="keyword">else</span>:
+<span class="line-num">11</span>    <span class="func">robot.head.nod</span>(times=<span class="number">2</span>)
+<span class="line-num">12</span>
+<span class="line-num">13</span><span class="keyword">for</span> i <span class="keyword">in</span> <span class="func">range</span>(<span class="number">3</span>):
+<span class="line-num">14</span>    <span class="func">robot.walk.forward</span>(steps=i)
+<span class="line-num">15</span>    <span class="func">robot.wait</span>(seconds=<span class="number">0.5</span>)
+<span class="line-num">16</span>
+<span class="line-num">17</span><span class="func">robot.stand_on_one_leg</span>(leg=<span class="string">'left'</span>)
+<span class="line-num">18</span><span class="func">robot.reset</span>()
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Download ────────────────────────────────────────────── -->
+  <section class="downloads-section" id="download">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-label">// DOWNLOAD</span>
+        <h2 class="section-title">Get Humanoid Code Lab</h2>
+        <p class="section-desc">Free and open-source. Choose your platform and start coding.</p>
+      </div>
+      <div class="downloads-grid">
+
+        <div class="download-card reveal">
+          <div class="os-icon">🐧</div>
+          <h3>Linux</h3>
+          <p class="platform-detail">.AppImage — x86_64</p>
+          <a href="https://github.com/KenzBilal/HumanoidCodeLab/releases/latest" class="btn btn-primary" target="_blank" rel="noopener">
+            ⬇ Download for Linux
+          </a>
+        </div>
+
+        <div class="download-card reveal">
+          <div class="os-icon">🪟</div>
+          <h3>Windows</h3>
+          <p class="platform-detail">.exe — NSIS Installer</p>
+          <a href="https://github.com/KenzBilal/HumanoidCodeLab/releases/latest" class="btn btn-primary" target="_blank" rel="noopener">
+            ⬇ Download for Windows
+          </a>
+        </div>
+
+        <div class="download-card reveal">
+          <div class="os-icon">🍎</div>
+          <h3>macOS</h3>
+          <p class="platform-detail">.dmg — Universal</p>
+          <a href="https://github.com/KenzBilal/HumanoidCodeLab/releases/latest" class="btn btn-primary" target="_blank" rel="noopener">
+            ⬇ Download for macOS
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Help & Support ──────────────────────────────────────── -->
+  <section class="support-section" id="support">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-label">// SUPPORT</span>
+        <h2 class="section-title">Help & Support</h2>
+        <p class="section-desc">Got questions? We've got answers. Reach out anytime.</p>
+      </div>
+      <div class="support-grid">
+
+        <!-- FAQ -->
+        <div class="faq-list reveal">
+          <div class="faq-item open">
+            <button class="faq-question">
+              What is Humanoid Code Lab?
+              <span class="arrow">▼</span>
+            </button>
+            <div class="faq-answer">
+              <p>Humanoid Code Lab is a free, open-source desktop application (Electron) that lets you write Python-like scripts to control a 3D humanoid robot in real-time. It features a built-in Monaco code editor, multi-provider AI script generation, a visual step-by-step debugger, and interactive training puzzles.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question">
+              Is it really free?
+              <span class="arrow">▼</span>
+            </button>
+            <div class="faq-answer">
+              <p>Yes! Humanoid Code Lab is 100% free and open-source under the Apache 2.0 license. You can download, use, modify, and redistribute it without any cost.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question">
+              Which AI providers are supported?
+              <span class="arrow">▼</span>
+            </button>
+            <div class="faq-answer">
+              <p>We support Google Gemini (2.0 Flash), OpenAI (GPT-4o), and Anthropic Claude (3.7 Sonnet). You bring your own API key and can switch between providers at any time within the app.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question">
+              Does it connect to real hardware?
+              <span class="arrow">▼</span>
+            </button>
+            <div class="faq-answer">
+              <p>Yes! The app includes a serial port interface that can stream commands to physical robot hardware via USB. This feature is designed for educational robotics kits and Arduino-based humanoid builds.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question">
+              Is my API key safe?
+              <span class="arrow">▼</span>
+            </button>
+            <div class="faq-answer">
+              <p>Absolutely. API keys are encrypted using your OS native keychain via Electron's <code>safeStorage</code> module. Keys are never stored in localStorage, config files, or transmitted anywhere except directly to the AI provider you selected.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question">
+              Can I contribute?
+              <span class="arrow">▼</span>
+            </button>
+            <div class="faq-answer">
+              <p>Of course! Check out our <a href="https://github.com/KenzBilal/HumanoidCodeLab/blob/main/CONTRIBUTING.md" target="_blank">CONTRIBUTING.md</a> on GitHub for setup instructions, PR guidelines, and code style expectations.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Contact -->
+        <div class="contact-cards reveal">
+          <a href="mailto:humanoidcodelab@gmail.com" class="contact-card">
+            <div class="contact-icon email">✉️</div>
+            <div>
+              <h4>Email Us</h4>
+              <p>humanoidcodelab@gmail.com</p>
+            </div>
+          </a>
+
+          <a href="https://t.me/HumanoidCodeLab" target="_blank" rel="noopener" class="contact-card">
+            <div class="contact-icon telegram">✈️</div>
+            <div>
+              <h4>Telegram Channel</h4>
+              <p>t.me/HumanoidCodeLab</p>
+            </div>
+          </a>
+
+          <a href="https://instagram.com/hclab.ai" target="_blank" rel="noopener" class="contact-card">
+            <div class="contact-icon insta">📸</div>
+            <div>
+              <h4>Follow on Instagram</h4>
+              <p>@hclab.ai</p>
+            </div>
+          </a>
+
+          <a href="https://github.com/KenzBilal/HumanoidCodeLab/issues/new?template=bug_report.md" target="_blank" rel="noopener" class="contact-card">
+            <div class="contact-icon email">🐛</div>
+            <div>
+              <h4>Report a Bug</h4>
+              <p>Open a GitHub Issue</p>
+            </div>
+          </a>
+
+          <a href="https://github.com/KenzBilal/HumanoidCodeLab/issues/new?template=feature_request.md" target="_blank" rel="noopener" class="contact-card">
+            <div class="contact-icon telegram">💡</div>
+            <div>
+              <h4>Request a Feature</h4>
+              <p>Submit an Idea on GitHub</p>
+            </div>
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Footer ──────────────────────────────────────────────── -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-logo">
+          <div class="logo-icon">🤖</div>
+          Humanoid Code Lab
+        </div>
+        <ul class="footer-links">
+          <li><a href="#features">Features</a></li>
+          <li><a href="#code">DSL</a></li>
+          <li><a href="#download">Download</a></li>
+          <li><a href="#support">Support</a></li>
+          <li><a href="https://github.com/KenzBilal/HumanoidCodeLab" target="_blank" rel="noopener">GitHub</a></li>
+        </ul>
+        <div class="footer-socials">
+          <a href="mailto:humanoidcodelab@gmail.com" class="social-btn" title="Email">✉️</a>
+          <a href="https://t.me/HumanoidCodeLab" target="_blank" rel="noopener" class="social-btn" title="Telegram">✈️</a>
+          <a href="https://instagram.com/hclab.ai" target="_blank" rel="noopener" class="social-btn" title="Instagram">📸</a>
+          <a href="https://github.com/KenzBilal/HumanoidCodeLab" target="_blank" rel="noopener" class="social-btn" title="GitHub">🌐</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 Humanoid Code Lab. Open-source under the Apache 2.0 License.</p>
+        <p>Built with ❤️ by <a href="https://github.com/KenzBilal" target="_blank" rel="noopener">KenzBilal</a></p>
+      </div>
+    </div>
+  </footer>
+
+</div><!-- .page-wrapper -->
+
+<!-- ═══ Scripts ═══ -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+<script src="scene.js"></script>
+<script src="app.js"></script>
+
+</body>
+</html>
