@@ -13,7 +13,7 @@ interface UpdateEvent {
 interface ElectronAPI {
   saveFile(content: string): Promise<{ success: boolean; filePath?: string; cancelled?: boolean; error?: string }>;
   serialCommunicate(command: string): Promise<{ success: boolean; data?: string; error?: string }>;
-  aiGenerate(prompt: string): Promise<{ code?: string; error?: string }>;
+  aiGenerate(prompt: string, apiKey: string): Promise<{ code?: string; error?: string }>;
   getVersion(): Promise<string>;
   checkForUpdate(): Promise<{ checking: boolean; message?: string }>;
   installUpdate(): Promise<void>;

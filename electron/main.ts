@@ -77,9 +77,8 @@ ipcMain.handle('save-file', async (_event, content: string) => {
 });
 
 // ── IPC: AI Generate ────────────────────────────────────────
-ipcMain.handle('ai-generate', async (_event, prompt) => {
-  const apiKey = process.env.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY;
-  if (!apiKey) return { error: 'No API key configured' };
+ipcMain.handle('ai-generate', async (_event, prompt, apiKey) => {
+  if (!apiKey) return { error: 'No API key provided. Please connect your AI provider.' };
   try {
     const ai = new GoogleGenAI({ apiKey });
     const systemInstruction = `You are an AI assistant that generates Python-like scripts for a 3D robot.

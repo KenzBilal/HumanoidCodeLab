@@ -38,6 +38,8 @@ interface AppState {
   loopPlayback: boolean;
   undoStack: CustomAnimation[][];
   redoStack: CustomAnimation[][];
+  geminiApiKey: string;
+  aiProvider: 'gemini' | 'openai' | 'claude';
   setView: (view: 'editor' | 'animator') => void;
   setCustomAnimations: (anims: CustomAnimation[]) => void;
   setActiveAnimationId: (id: string | null) => void;
@@ -54,6 +56,9 @@ interface AppState {
   undo: () => void;
   redo: () => void;
   updateCustomAnimations: (fn: (anims: CustomAnimation[]) => CustomAnimation[]) => void;
+  setGeminiApiKey: (key: string) => void;
+  setAiProvider: (p: 'gemini' | 'openai' | 'claude') => void;
+  clearApiKey: () => void;
 }
 
 let logId = 0;
@@ -123,6 +128,8 @@ robot.idle()`,
       loopPlayback: false,
       undoStack: [],
       redoStack: [],
+      geminiApiKey: '',
+      aiProvider: 'gemini',
       setView: (view) => set({ view }),
       setCustomAnimations: (customAnimations) => set({ customAnimations }),
       setActiveAnimationId: (activeAnimationId) => set({ activeAnimationId }),
@@ -166,11 +173,14 @@ robot.idle()`,
         const state = get();
         const newAnims = fn(state.customAnimations);
         set({ customAnimations: newAnims });
-      }
+      },
+      setGeminiApiKey: (geminiApiKey) => set({ geminiApiKey }),
+      setAiProvider: (aiProvider) => set({ aiProvider }),
+      clearApiKey: () => set({ geminiApiKey: '', aiProvider: 'gemini' })
     }),
     {
       name: 'humanoid-storage',
-      partialize: (state) => ({ customAnimations: state.customAnimations, code: state.code }),
+      partialize: (state) => ({ customAnimations: state.customAnimations, code: state.code, geminiApiKey: state.geminiApiKey, aiProvider: state.aiProvider }),
       merge: (persistedState: any, currentState) => {
         if (persistedState?.customAnimations) {
           persistedState.customAnimations = persistedState.customAnimations.map((anim: any) => {

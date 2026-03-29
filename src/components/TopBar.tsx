@@ -3,11 +3,14 @@ import { useStore } from '../store';
 import { Queue } from '../engine/Queue';
 import { Humanoid } from '../engine/Humanoid';
 import { Play, Square } from 'lucide-react';
+import { AIConnectModal } from './AIConnectModal';
+import { AIGenerateModal } from './AIGenerateModal';
+import { SettingsModal } from './SettingsModal';
 
 type UpdateState = 'idle' | 'checking' | 'available' | 'downloading' | 'downloaded' | 'error' | 'not-available';
 
 export function TopBar({ bot, onRun }: { bot: Humanoid | null, onRun: () => void }) {
-  const { addLog, setRunning, isRunning, view, setView } = useStore();
+  const { addLog, setRunning, isRunning, view, setView, geminiApiKey } = useStore();
   const [version, setVersion] = useState('');
   const [updateState, setUpdateState] = useState<UpdateState>('idle');
   const [newVersion, setNewVersion] = useState('');
@@ -16,12 +19,16 @@ export function TopBar({ bot, onRun }: { bot: Humanoid | null, onRun: () => void
   const [errorMsg, setErrorMsg] = useState('');
   const menuRef = useRef<HTMLDivElement>(null);
 
+  const [showConnectModal, setShowConnectModal] = useState(false);
+  const [showAIModal, setShowAIModal] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
+
+  const aiConnected = !!geminiApiKey;
+
   // Get version and listen for update events
   useEffect(() => {
     if (!window.electronAPI) return;
-
     window.electronAPI.getVersion().then(v => setVersion(v));
-
     window.electronAPI.onUpdateEvent((type, data) => {
       switch (type) {
         case 'checking':
@@ -88,9 +95,16 @@ export function TopBar({ bot, onRun }: { bot: Humanoid | null, onRun: () => void
     setRunning(false);
   };
 
+  const handleAIClick = () => {
+    if (aiConnected) {
+      setShowAIModal(true);
+    } else {
+      setShowConnectModal(true);
+    }
+  };
+
   const renderUpdateBadge = () => {
     if (!window.electronAPI) return null;
-
     switch (updateState) {
       case 'checking':
         return (
@@ -100,11 +114,7 @@ export function TopBar({ bot, onRun }: { bot: Humanoid | null, onRun: () => void
           </span>
         );
       case 'available':
-        return (
-          <span className="flex items-center gap-1 text-[10px] text-[#98c379] font-medium">
-            ⬇ Update available
-          </span>
-        );
+        return <span className="flex items-center gap-1 text-[10px] text-[#98c379] font-medium">⬇ Update available</span>;
       case 'downloading':
         return (
           <span className="flex items-center gap-1.5 text-[10px] text-[#e5c07b]">
@@ -116,10 +126,7 @@ export function TopBar({ bot, onRun }: { bot: Humanoid | null, onRun: () => void
         );
       case 'downloaded':
         return (
-          <button
-            onClick={handleInstallUpdate}
-            className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold bg-[#98c379]/20 text-[#98c379] hover:bg-[#98c379]/30 rounded transition-colors animate-pulse"
-          >
+          <button onClick={handleInstallUpdate} className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold bg-[#98c379]/20 text-[#98c379] hover:bg-[#98c379]/30 rounded transition-colors animate-pulse">
             ⟳ Restart to Update
           </button>
         );
@@ -133,77 +140,118 @@ export function TopBar({ bot, onRun }: { bot: Humanoid | null, onRun: () => void
   };
 
   return (
-    <div className="h-[42px] bg-[#2b2f36] border-b border-[#181a1f] flex items-center justify-between px-4 shrink-0 shadow-sm z-10">
-      <div className="flex items-center gap-4 text-[13px] text-[#abb2bf] font-medium h-full">
-        <span
-          onClick={() => setView('editor')}
-          className={`cursor-pointer hover:text-white border-b-2 h-full flex items-center ${view === 'editor' ? 'border-white text-white' : 'border-transparent hover:border-white'}`}
-        >
-          Editor
-        </span>
-        <span
-          onClick={() => setView('animator')}
-          className={`cursor-pointer hover:text-white border-b-2 h-full flex items-center ${view === 'animator' ? 'border-white text-white' : 'border-transparent hover:border-white'}`}
-        >
-          Animator
-        </span>
-      </div>
+    <>
+      <div className="h-[42px] bg-[#2b2f36] border-b border-[#181a1f] flex items-center justify-between px-4 shrink-0 shadow-sm z-10">
+        <div className="flex items-center gap-4 text-[13px] text-[#abb2bf] font-medium h-full">
+          <span
+            onClick={() => setView('editor')}
+            className={`cursor-pointer hover:text-white border-b-2 h-full flex items-center ${view === 'editor' ? 'border-white text-white' : 'border-transparent hover:border-white'}`}
+          >
+            Editor
+          </span>
+          <span
+            onClick={() => setView('animator')}
+            className={`cursor-pointer hover:text-white border-b-2 h-full flex items-center ${view === 'animator' ? 'border-white text-white' : 'border-transparent hover:border-white'}`}
+          >
+            Animator
+          </span>
+        </div>
 
-      <div className="flex items-center gap-1.5 opacity-90">
-        <span className="text-white font-bold text-[14px] flex items-center gap-2">
-          Humanoid Code Lab
-          {isRunning && <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.8)]" title="Running script..." />}
-        </span>
-      </div>
+        <div className="flex items-center gap-1.5 opacity-90">
+          <span className="text-white font-bold text-[14px] flex items-center gap-2">
+            Humanoid Code Lab
+            {isRunning && <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.8)]" title="Running script..." />}
+          </span>
+        </div>
 
-      <div className="flex items-center gap-3">
-        {view === 'editor' && (
-          <div className="flex items-center gap-2 mr-2">
-            {isRunning ? (
-              <button onClick={() => Queue.stop()} className="flex items-center gap-1.5 px-3 py-1 bg-[#e06c75]/20 text-[#e06c75] hover:bg-[#e06c75]/30 rounded text-xs font-semibold transition-colors">
-                <Square size={12} fill="currentColor" /> Stop
-              </button>
-            ) : (
-              <button onClick={onRun} className="flex items-center gap-1.5 px-3 py-1 bg-[#98c379]/20 text-[#98c379] hover:bg-[#98c379]/30 rounded text-xs font-semibold transition-colors">
-                <Play size={12} fill="currentColor" /> Run
-              </button>
-            )}
-            <div className="w-px h-4 bg-[#3E4451] ml-2" />
-          </div>
-        )}
-        <button
-          onClick={handleReset}
-          className="flex items-center gap-1.5 px-3 py-1 rounded text-[12px] font-semibold transition-colors duration-120 border bg-[#2b2f36] border-[#181a1f] text-white hover:bg-[#333842] cursor-pointer"
-        >
-          ↺ Reset
-        </button>
-
-        {/* Update section */}
-        <div className="relative flex items-center gap-2" ref={menuRef}>
-          {renderUpdateBadge()}
-          {version && (
-            <button
-              onClick={() => setShowMenu(!showMenu)}
-              className="text-[10px] text-[#5c6370] hover:text-[#abb2bf] transition-colors cursor-pointer px-1"
-            >
-              v{version}
-            </button>
-          )}
-          {showMenu && (
-            <div className="absolute right-0 top-full mt-1 w-48 bg-[#282c34] border border-[#181a1f] rounded shadow-xl py-1 z-50">
-              <button
-                onClick={handleCheckUpdate}
-                className="w-full text-left px-3 py-2 text-[12px] text-[#abb2bf] hover:bg-[#2c313a] hover:text-white transition-colors"
-              >
-                Check for Updates
-              </button>
-              <div className="px-3 py-1 text-[10px] text-[#5c6370] border-t border-[#181a1f]">
-                Version {version}
-              </div>
+        <div className="flex items-center gap-3">
+          {view === 'editor' && (
+            <div className="flex items-center gap-2 mr-2">
+              {isRunning ? (
+                <button onClick={() => Queue.stop()} className="flex items-center gap-1.5 px-3 py-1 bg-[#e06c75]/20 text-[#e06c75] hover:bg-[#e06c75]/30 rounded text-xs font-semibold transition-colors">
+                  <Square size={12} fill="currentColor" /> Stop
+                </button>
+              ) : (
+                <button onClick={onRun} className="flex items-center gap-1.5 px-3 py-1 bg-[#98c379]/20 text-[#98c379] hover:bg-[#98c379]/30 rounded text-xs font-semibold transition-colors">
+                  <Play size={12} fill="currentColor" /> Run
+                </button>
+              )}
+              <div className="w-px h-4 bg-[#3E4451] ml-2" />
             </div>
           )}
+          <button
+            onClick={handleReset}
+            className="flex items-center gap-1.5 px-3 py-1 rounded text-[12px] font-semibold transition-colors duration-120 border bg-[#2b2f36] border-[#181a1f] text-white hover:bg-[#333842] cursor-pointer"
+          >
+            ↺ Reset
+          </button>
+
+          {/* AI Button — locked or unlocked */}
+          <button
+            onClick={handleAIClick}
+            title={aiConnected ? 'AI Generate' : 'Connect AI Provider'}
+            className={`flex items-center justify-center w-8 h-8 rounded text-[14px] transition-all cursor-pointer ${
+              aiConnected
+                ? 'bg-purple-600/20 text-purple-400 hover:bg-purple-600/30'
+                : 'bg-[#333842] text-[#5c6370] hover:text-[#abb2bf] hover:bg-[#3e4451]'
+            }`}
+          >
+            {aiConnected ? '✨' : '🔒'}
+          </button>
+
+          {/* Settings */}
+          <button
+            onClick={() => setShowSettingsModal(true)}
+            className="flex items-center justify-center w-8 h-8 rounded text-[14px] bg-[#333842] text-[#5c6370] hover:text-[#abb2bf] hover:bg-[#3e4451] transition-colors cursor-pointer"
+            title="Settings"
+          >
+            ⚙
+          </button>
+
+          {/* Update section */}
+          <div className="relative flex items-center gap-2" ref={menuRef}>
+            {renderUpdateBadge()}
+            {version && (
+              <button
+                onClick={() => setShowMenu(!showMenu)}
+                className="text-[10px] text-[#5c6370] hover:text-[#abb2bf] transition-colors cursor-pointer px-1"
+              >
+                v{version}
+              </button>
+            )}
+            {showMenu && (
+              <div className="absolute right-0 top-full mt-1 w-48 bg-[#282c34] border border-[#181a1f] rounded shadow-xl py-1 z-50">
+                <button
+                  onClick={handleCheckUpdate}
+                  className="w-full text-left px-3 py-2 text-[12px] text-[#abb2bf] hover:bg-[#2c313a] hover:text-white transition-colors"
+                >
+                  Check for Updates
+                </button>
+                <div className="px-3 py-1 text-[10px] text-[#5c6370] border-t border-[#181a1f]">
+                  Version {version}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+
+      {/* Modals */}
+      {showConnectModal && (
+        <AIConnectModal
+          onClose={() => setShowConnectModal(false)}
+          onSuccess={() => setShowAIModal(true)}
+        />
+      )}
+      {showAIModal && (
+        <AIGenerateModal onClose={() => setShowAIModal(false)} />
+      )}
+      {showSettingsModal && (
+        <SettingsModal
+          onClose={() => setShowSettingsModal(false)}
+          onKeyChange={() => {}}
+        />
+      )}
+    </>
   );
 }
