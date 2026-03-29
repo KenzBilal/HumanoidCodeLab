@@ -70,7 +70,7 @@ const AXIS_COLORS: Record<string, string> = {
 };
 
 export function AnimatorRightPanel({ bot }: { bot: Humanoid | null }) {
-  const { customAnimations, setCustomAnimations, activeAnimationId, activeKeyframeId, activePart, setActivePart, pushUndo, playbackTime } = useStore();
+  const { customAnimations, setCustomAnimations, activeAnimationId, activeKeyframeId, activePart, setActivePart, pushUndo, playbackTime, addLog } = useStore();
   const [clipboardRotation, setClipboardRotation] = useState<{ x: number; y: number; z: number } | null>(null);
 
   const activeAnim = customAnimations.find(a => a.id === activeAnimationId);
@@ -151,9 +151,13 @@ export function AnimatorRightPanel({ bot }: { bot: Humanoid | null }) {
     }
   };
 
-  const handlePreview = () => {
+  const handlePreview = async () => {
     if (!bot || !activeAnim) return;
-    bot.playCustom(activeAnim);
+    try {
+      await bot.playCustom(activeAnim);
+    } catch (err: any) {
+      addLog('ERROR', `Preview failed: ${err.message}`);
+    }
   };
 
   const handleResetPose = () => {
@@ -218,7 +222,9 @@ export function AnimatorRightPanel({ bot }: { bot: Humanoid | null }) {
     );
   }
 
-  const currentPartRot = activePart ? (activeKf.rotations[activePart] || { x: 0, y: 0, z: 0 }) : null;
+  const currentPartRot = activePart && activeKf
+    ? (activeKf.rotations[activePart] || { x: 0, y: 0, z: 0 })
+    : null;
 
   return (
     <div className="w-[300px] bg-[#21252b] border-l border-[#181a1f] flex flex-col shrink-0 overflow-hidden">

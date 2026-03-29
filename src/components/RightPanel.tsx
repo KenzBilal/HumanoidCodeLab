@@ -1,27 +1,12 @@
 import React, { useState } from 'react';
 import { useStore } from '../store';
-import { Queue } from '../engine/Queue';
-import { Interpreter } from '../engine/Interpreter';
 import { Humanoid } from '../engine/Humanoid';
 import { AIGenerateModal } from './AIGenerateModal';
 
-export function RightPanel({ bot }: { bot: Humanoid | null }) {
+export function RightPanel({ bot, onRun }: { bot: Humanoid | null, onRun: () => void }) {
   const { code, setCode, isRunning, addLog } = useStore();
   const [showAIModal, setShowAIModal] = useState(false);
 
-  const handleRun = () => {
-    if (Queue.running || !bot) return;
-    const { actions, errors } = Interpreter.compile(code);
-    if (errors.length) {
-      errors.forEach(e => addLog('ERROR', `Line ${e.line}: ${e.msg}`));
-      return;
-    }
-    if (!actions.length) {
-      addLog('WARN', 'No commands found. Write some robot.command() calls.');
-      return;
-    }
-    Queue.run(actions, bot);
-  };
 
   const handleSave = async () => {
     if (window.electronAPI) {
@@ -61,7 +46,7 @@ export function RightPanel({ bot }: { bot: Humanoid | null }) {
     }
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
       e.preventDefault();
-      handleRun();
+      onRun();
     }
   };
 
@@ -69,10 +54,12 @@ export function RightPanel({ bot }: { bot: Humanoid | null }) {
 
   const colorize = (c: string) => {
     return c.split('\n').map(line => {
+      // SEC-01: Ensure esc() is called FIRST before any regex substitution
       let s = esc(line);
       if (s.trim().startsWith('#')) return `<span class="text-[#636e7b] italic">${s}</span>`;
       s = s.replace(/\brobot\b/g, '<span class="text-[#58a6ff] font-semibold">robot</span>');
       s = s.replace(/\b(for|in|range|if|else|elif|and|or|not|True|False)\b/g, '<span class="text-[#c792ea]">$1</span>');
+      // $1 captures \w+ (word chars only, alphanumeric/underscores) avoiding unescaped HTML injection
       s = s.replace(/\.([a-zA-Z_]\w*)(?=\()/g, '.<span class="text-[#ffb86c]">$1</span>');
       s = s.replace(/\.([a-zA-Z_]\w*)(?!\()/g, '.<span class="text-[#ffb86c]">$1</span>');
       s = s.replace(/([a-z_]+)(?==[\d\-])/g, '<span class="text-[#7dc8e8]">$1</span>');
@@ -86,14 +73,8 @@ export function RightPanel({ bot }: { bot: Humanoid | null }) {
   const lineNumbers = Array.from({ length: rows }, (_, i) => i + 1).join('\n');
 
   return (
-    <div className="w-[400px] bg-[#282c34] border-l border-[#181a1f] flex flex-col shrink-0">
-      <div className="px-4 py-3 border-b border-[#181a1f] flex items-center gap-2 shrink-0 bg-[#21252b]">
-        <button 
-          onClick={handleRun}
-          className={`px-4 py-1.5 rounded text-[13px] font-semibold transition-colors duration-120 flex items-center gap-1.5 ${isRunning ? 'bg-[#3e4451] text-[#abb2bf] cursor-default' : 'bg-[#4d78cc] text-white hover:bg-[#4065b4] cursor-pointer'}`}
-        >
-          <span>▶</span> {isRunning ? 'Running…' : 'Run'}
-        </button>
+    <div className="w-[400px] min-w-[280px] max-w-[500px] hidden md:flex bg-[#282c34] border-l border-[#181a1f] flex-col shrink-0">
+      <div className="px-4 py-3 border-b border-[#181a1f] flex justify-end items-center gap-2 shrink-0 bg-[#21252b]">
         <button 
           onClick={handleSave}
           className="px-4 py-1.5 rounded text-[13px] font-semibold transition-colors duration-120 bg-[#3e4451] text-white hover:bg-[#4c5363] cursor-pointer"

@@ -1,7 +1,6 @@
 import { Humanoid } from './Humanoid';
 import { Action } from './Interpreter';
-import { useStore } from '../store';
-
+import { ExecutionContext } from './CommandRegistry';
 export const Queue = (() => {
   let _running = false;
   let _stop = false;
@@ -21,40 +20,56 @@ export const Queue = (() => {
   return {
     get running() { return _running; },
     stop() { _stop = true; },
-    async run(actions: Action[], bot: Humanoid) {
+    async run(
+      actions: Action[], 
+      bot: Humanoid,
+      options: {
+        onLog: (type: "INFO"|"ACTION"|"SUCCESS"|"ERROR"|"WARN", msg: string) => void,
+        onRunning: (r: boolean) => void,
+        onStop: () => boolean,
+        context: ExecutionContext
+      }
+    ) {
       if (_running) return;
       _running = true;
       _stop = false;
       
-      const store = useStore.getState();
-      store.setRunning(true);
-      store.addLog('INFO', 'Running script...');
+      options.onRunning(true);
+      options.onLog('INFO', 'Running script...');
+      
+      const startTime = performance.now();
       
       for (const a of actions) {
-        if (_stop) { 
-          store.addLog('WARN', 'Execution stopped.'); 
+        if (_stop || options.onStop()) { 
+          options.onLog('WARN', 'Execution stopped.'); 
           break; 
         }
-        store.addLog('ACTION', fmtLog(a.path, a.params));
+        if (performance.now() - startTime > 30000) {
+          options.onLog('ERROR', 'Execution timed out (30s limit). Possible infinite loop.');
+          break;
+        }
+        
+        options.onLog('ACTION', fmtLog(a.path, a.params));
         
         const cat = a.path.split('.')[0];
         if (partMap[cat]) bot.highlight(partMap[cat]);
         
         try { 
-          await a.cmd.execute(bot, a.params); 
+          await a.cmd.execute(bot, a.params, options.context); 
         } catch(e: any) { 
-          store.addLog('ERROR', e.message); 
+          const lineRef = a.srcLine ? ` (line ${a.srcLine})` : '';
+          options.onLog('ERROR', `${a.rawLine}${lineRef} → ${e.message}`); 
           break; 
         }
       }
       
-      if (!_stop) { 
+      if (!_stop && !options.onStop()) { 
         bot.highlight(null); 
-        store.addLog('SUCCESS', 'Execution complete.'); 
+        options.onLog('SUCCESS', 'Execution complete.'); 
       }
       
       _running = false; 
-      useStore.getState().setRunning(false);
+      options.onRunning(false);
     }
   };
 })();

@@ -14,9 +14,21 @@ export function AIGenerateModal({ onClose }: { onClose: () => void }) {
     addLog('INFO', 'Generating script with Gemini...');
     
     try {
-      const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY || '' });
-      
-      const systemInstruction = `You are an AI assistant that generates Python-like scripts for a 3D robot.
+      let generatedCode = '';
+      if (window.electronAPI?.aiGenerate) {
+        const result = await window.electronAPI.aiGenerate(prompt);
+        if (result.error) throw new Error(result.error);
+        generatedCode = result.code || '';
+      } else {
+        const apiKey = import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.GEMINI_API_KEY;
+        if (!apiKey) {
+          addLog('ERROR', 'No Gemini API key found. Add VITE_GEMINI_API_KEY to your .env file.');
+          setIsGenerating(false);
+          return;
+        }
+        addLog('WARN', 'Direct API call from browser. API key may be exposed.');
+        const ai = new GoogleGenAI({ apiKey });
+        const systemInstruction = `You are an AI assistant that generates Python-like scripts for a 3D robot.
 The robot supports the following commands:
 - robot.walk.forward(steps=N)
 - robot.walk.backward(steps=N)
@@ -50,18 +62,18 @@ The robot supports the following commands:
 
 Generate ONLY the script code. Do not include markdown formatting like \`\`\`python. Do not include explanations. Just the code.`;
 
-      const response = await ai.models.generateContent({
-        model: 'gemini-3.1-flash-lite-preview',
-        contents: prompt,
-        config: {
-          systemInstruction,
-          temperature: 0.2,
-        }
-      });
+        const response = await ai.models.generateContent({
+          model: 'gemini-2.0-flash-exp',
+          contents: prompt,
+          config: {
+            systemInstruction,
+            temperature: 0.2,
+          }
+        });
 
-      let generatedCode = response.text || '';
-      // Clean up markdown if the model ignored instructions
-      generatedCode = generatedCode.replace(/^```[a-z]*\n/gm, '').replace(/```$/gm, '').trim();
+        generatedCode = response.text || '';
+        generatedCode = generatedCode.replace(/^```[a-z]*\n/gm, '').replace(/```$/gm, '').trim();
+      }
       
       setCode(generatedCode);
       addLog('SUCCESS', 'Script generated successfully.');

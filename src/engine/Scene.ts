@@ -119,6 +119,20 @@ export class SceneManager {
 
   dispose() {
     if (this.animationId) cancelAnimationFrame(this.animationId);
+    
+    this.scene.traverse((node: any) => {
+      if (node.isMesh) {
+        if (node.geometry) node.geometry.dispose();
+        if (node.material) {
+          if (Array.isArray(node.material)) {
+            node.material.forEach((m: any) => m.dispose());
+          } else {
+            node.material.dispose();
+          }
+        }
+      }
+    });
+
     this.renderer.dispose();
   }
 }

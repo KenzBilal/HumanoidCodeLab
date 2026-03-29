@@ -12,6 +12,7 @@ export function AnimatorTimelinePanel({ bot }: { bot: Humanoid | null }) {
   const animRef = useRef<any>(null);
   const botRef = useRef(bot);
   const loopRef = useRef(false);
+  const t0Ref = useRef(performance.now());
 
   botRef.current = bot;
   loopRef.current = store.loopPlayback;
@@ -40,67 +41,38 @@ export function AnimatorTimelinePanel({ bot }: { bot: Humanoid | null }) {
     const b = botRef.current;
     if (!anim || !b) return;
     store.setPlaying(true);
-    const t0 = performance.now();
-    const startOffset = store.playbackTime;
+
+    t0Ref.current = performance.now() - (store.playbackTime * (animRef.current?.duration || 1000));
 
     const tick = (now: number) => {
       const a = animRef.current;
-      if (!a) { store.setPlaying(false); return; }
-      const elapsed = now - t0;
-      const dur = a.duration * (1 - startOffset);
-      const t = Math.min(elapsed / dur, 1);
-      const currentTime = startOffset + t * (1 - startOffset);
-      store.setPlaybackTime(currentTime);
-      if (botRef.current) botRef.current.scrubTo(a, currentTime);
-
-      if (t < 1) {
-        playRafRef.current = requestAnimationFrame(tick);
-      } else if (loopRef.current) {
-        // Loop: restart from 0
-        const loopStart = performance.now();
-        const loopTick = (now2: number) => {
-          const a2 = animRef.current;
-          if (!a2) { store.setPlaying(false); return; }
-          const lt = Math.min((now2 - loopStart) / a2.duration, 1);
-          store.setPlaybackTime(lt);
-          if (botRef.current) botRef.current.scrubTo(a2, lt);
-          if (lt >= 1) {
-            if (loopRef.current) {
-              const restart = performance.now();
-              const innerTick = (now3: number) => {
-                const a3 = animRef.current;
-                if (!a3) { store.setPlaying(false); return; }
-                const ilt = Math.min((now3 - restart) / a3.duration, 1);
-                store.setPlaybackTime(ilt);
-                if (botRef.current) botRef.current.scrubTo(a3, ilt);
-                if (ilt >= 1) {
-                  if (loopRef.current) {
-                    playRafRef.current = requestAnimationFrame(innerTick);
-                  } else {
-                    store.setPlaying(false);
-                    playRafRef.current = null;
-                  }
-                } else {
-                  playRafRef.current = requestAnimationFrame(innerTick);
-                }
-              };
-              playRafRef.current = requestAnimationFrame(innerTick);
-            } else {
-              store.setPlaying(false);
-              playRafRef.current = null;
-            }
-          } else {
-            playRafRef.current = requestAnimationFrame(loopTick);
-          }
-        };
-        playRafRef.current = requestAnimationFrame(loopTick);
-      } else {
-        store.setPlaying(false);
+      if (!a || !store.isPlaying) {
         playRafRef.current = null;
+        store.setPlaying(false);
+        return;
       }
+      const elapsed = now - t0Ref.current;
+      let t = elapsed / a.duration;
+      if (t >= 1) {
+        if (loopRef.current) {
+          t0Ref.current = now;
+          t = 0;
+        } else {
+          t = 1;
+          store.setPlaybackTime(1);
+          if (botRef.current) botRef.current.scrubTo(a, 1);
+          store.setPlaying(false);
+          playRafRef.current = null;
+          return;
+        }
+      }
+      store.setPlaybackTime(t);
+      if (botRef.current) botRef.current.scrubTo(a, t);
+      playRafRef.current = requestAnimationFrame(tick);
     };
+
     playRafRef.current = requestAnimationFrame(tick);
-  }, [store.setPlaying, store.setPlaybackTime, store.playbackTime]);
+  }, [store.isPlaying, store.playbackTime, store.setPlaying, store.setPlaybackTime]);
 
   const togglePlayPause = useCallback(() => {
     if (store.isPlaying) {
@@ -127,6 +99,13 @@ export function AnimatorTimelinePanel({ bot }: { bot: Humanoid | null }) {
     stopPlayback();
     store.setPlaybackTime(0);
   }, [store.activeAnimationId, stopPlayback, store.setPlaybackTime]);
+
+  // Stop playback if activeAnim disappears
+  useEffect(() => {
+    if (!activeAnim && store.isPlaying) {
+      stopPlayback();
+    }
+  }, [activeAnim, store.isPlaying, stopPlayback]);
 
   // Convert mouse X to time (0-1)
   const xToTime = (clientX: number): number => {
@@ -192,7 +171,7 @@ export function AnimatorTimelinePanel({ bot }: { bot: Humanoid | null }) {
   const handleAddKeyframe = () => {
     store.pushUndo();
     const newKf: Keyframe = {
-      id: Math.random().toString(36).substr(2, 9),
+      id: Math.random().toString(36).substring(2, 9),
       time: store.playbackTime > 0 ? Math.min(1, store.playbackTime) : 1,
       rotations: {},
       rootOffset: { y: 0 },
@@ -242,7 +221,7 @@ export function AnimatorTimelinePanel({ bot }: { bot: Humanoid | null }) {
     store.pushUndo();
     const newKf: Keyframe = {
       ...JSON.parse(JSON.stringify(kf)),
-      id: Math.random().toString(36).substr(2, 9),
+      id: Math.random().toString(36).substring(2, 9),
       time: Math.min(1, kf.time + 0.05)
     };
     const newKeyframes = [...keyframes, newKf].sort((a, b) => a.time - b.time);
@@ -348,7 +327,8 @@ export function AnimatorTimelinePanel({ bot }: { bot: Humanoid | null }) {
           style={{ left: `${store.playbackTime * 100}%` }}
         >
           <div className="w-px h-full bg-[#e5c07b]" />
-          <div className="absolute -top-0.5 -left-[5px] w-[11px] h-[11px] bg-[#e5c07b] rounded-sm rotate-45 pointer-events-auto cursor-ew-resize" />
+          <div className="absolute -top-1 -left-1.5 w-[13px] h-[13px] bg-[#e5c07b] rounded-sm rotate-45 pointer-events-auto cursor-ew-resize" />
+          <div className="absolute top-0 bottom-0 -left-2 right-2 cursor-ew-resize hover:bg-white/10 opacity-0 pointer-events-auto" />
         </div>
       </div>
 

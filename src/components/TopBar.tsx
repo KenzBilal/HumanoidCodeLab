@@ -1,9 +1,10 @@
 import { useStore } from '../store';
 import { Queue } from '../engine/Queue';
 import { Humanoid } from '../engine/Humanoid';
+import { Play, Square } from 'lucide-react';
 
-export function TopBar({ bot }: { bot: Humanoid | null }) {
-  const { addLog, setRunning, view, setView } = useStore();
+export function TopBar({ bot, onRun }: { bot: Humanoid | null, onRun: () => void }) {
+  const { addLog, setRunning, isRunning, view, setView } = useStore();
 
   const handleReset = async () => {
     if (!bot) return;
@@ -32,11 +33,28 @@ export function TopBar({ bot }: { bot: Humanoid | null }) {
         </span>
       </div>
 
-      <div className="absolute left-1/2 -translate-x-1/2 font-bold text-white tracking-wider text-[14px]">
-        HUMANOID CODE LAB
+      <div className="flex items-center gap-1.5 opacity-90">
+        <span className="text-white font-bold text-[14px] flex items-center gap-2">
+          Humanoid Code Lab
+          {isRunning && <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.8)]" title="Running script..." />}
+        </span>
       </div>
-
-      <div className="flex items-center gap-2">
+      
+      <div className="flex items-center gap-3">
+        {view === 'editor' && (
+          <div className="flex items-center gap-2 mr-2">
+            {isRunning ? (
+              <button onClick={() => Queue.stop()} className="flex items-center gap-1.5 px-3 py-1 bg-[#e06c75]/20 text-[#e06c75] hover:bg-[#e06c75]/30 rounded text-xs font-semibold transition-colors">
+                <Square size={12} fill="currentColor" /> Stop
+              </button>
+            ) : (
+              <button onClick={onRun} className="flex items-center gap-1.5 px-3 py-1 bg-[#98c379]/20 text-[#98c379] hover:bg-[#98c379]/30 rounded text-xs font-semibold transition-colors">
+                <Play size={12} fill="currentColor" /> Run
+              </button>
+            )}
+            <div className="w-px h-4 bg-[#3E4451] ml-2" />
+          </div>
+        )}
         <button
           onClick={handleReset}
           className="flex items-center gap-1.5 px-3 py-1 rounded text-[12px] font-semibold transition-colors duration-120 border bg-[#2b2f36] border-[#181a1f] text-white hover:bg-[#333842] cursor-pointer"

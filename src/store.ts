@@ -110,23 +110,12 @@ export const useStore = create<AppState>()(
       activeAnimationId: null,
       activeKeyframeId: null,
       isRunning: false,
-      code: `# Default Script
-
-robot.play(animation='Custom Crouch')
-robot.wait(seconds=1)
-robot.play(animation='Custom Lay Down')
-robot.wait(seconds=1)
+      code: `# Welcome to Humanoid Code Lab!
+robot.walk.forward(steps=2)
+robot.turn.left(angle=90)
+robot.left_hand.wave(times=2)
 robot.stand_up()
-robot.wait(seconds=1)
-robot.stand_on_one_leg(leg='left')
-robot.wait(seconds=1)
-robot.stand_up()
-robot.wait(seconds=1)
-robot.stand_on_one_leg(leg='right')
-robot.wait(seconds=1)
-robot.stand_up()
-robot.wait(seconds=1)
-robot.walk.forward(steps=3)`,
+robot.idle()`,
       logs: [],
       activePart: null,
       playbackTime: 0,

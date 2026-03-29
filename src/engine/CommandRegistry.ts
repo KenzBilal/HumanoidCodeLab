@@ -1,5 +1,4 @@
 import { Humanoid } from './Humanoid';
-import { useStore } from '../store';
 
 export interface CommandParam {
   name: string;
@@ -7,10 +6,14 @@ export interface CommandParam {
   default?: any;
 }
 
+export interface ExecutionContext {
+  customAnimations: any[]; // using any[] to avoid circular dependency or import if CustomAnimation isn't exported here initially
+}
+
 export interface CommandDef {
   path: string;
   params: CommandParam[];
-  execute: (bot: Humanoid, params: any) => Promise<void>;
+  execute: (bot: Humanoid, params: any, context?: ExecutionContext) => Promise<void>;
   description: string;
   category: string;
   phase: number;
@@ -93,10 +96,13 @@ CommandRegistry.register('turn.right', { params: [{ name: 'angle', type: 'number
 // BODY
 CommandRegistry.register('play', { 
   params: [{ name: 'animation', type: 'string' }], 
-  execute: async (b, p) => {
-    const anims = useStore.getState().customAnimations;
+  execute: async (b, p, context) => {
+    const anims = context?.customAnimations || [];
     const anim = anims.find(a => a.name === p.animation);
-    if (!anim) throw new Error(`Animation not found: ${p.animation}`);
+    if (!anim) {
+       const available = anims.map(a => a.name).join(', ') || 'none';
+       throw new Error(`Animation not found: '${p.animation}'. Available: ${available}`);
+    }
     await b.playCustom(anim);
   }, 
   description: 'Play a custom animation', 

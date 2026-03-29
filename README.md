@@ -32,6 +32,14 @@ A browser-based 3D humanoid robot programming lab. Write Python-like scripts to 
 npm install
 ```
 
+### Environment Variables
+
+Create a `.env` file in the project root:
+```env
+VITE_GEMINI_API_KEY=your_gemini_api_key_here
+```
+This is required for the AI Generate feature to work effectively, keeping the key secure in the Electron main process.
+
 ### Development
 
 ```bash

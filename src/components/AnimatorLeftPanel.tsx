@@ -8,11 +8,11 @@ export function AnimatorLeftPanel() {
   const handleCreate = () => {
     pushUndo();
     const newAnim = {
-      id: Math.random().toString(36).substr(2, 9),
+      id: Math.random().toString(36).substring(2, 9),
       name: `Animation ${customAnimations.length + 1}`,
       duration: 1000,
       keyframes: [{
-        id: Math.random().toString(36).substr(2, 9),
+        id: Math.random().toString(36).substring(2, 9),
         time: 1,
         rotations: {},
         rootOffset: { y: 0 },
@@ -31,11 +31,11 @@ export function AnimatorLeftPanel() {
     pushUndo();
     const newAnim = {
       ...JSON.parse(JSON.stringify(anim)),
-      id: Math.random().toString(36).substr(2, 9),
+      id: Math.random().toString(36).substring(2, 9),
       name: `${anim.name} (copy)`,
       keyframes: anim.keyframes.map((kf: any) => ({
         ...kf,
-        id: Math.random().toString(36).substr(2, 9)
+        id: Math.random().toString(36).substring(2, 9)
       }))
     };
     setCustomAnimations([...customAnimations, newAnim]);
@@ -80,11 +80,32 @@ export function AnimatorLeftPanel() {
     input.onchange = (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (!file) return;
+      if (file.size > 5 * 1024 * 1024) {
+        addLog('ERROR', 'Import file is too large. Max size is 5MB.');
+        (e.target as HTMLInputElement).value = '';
+        return;
+      }
       const reader = new FileReader();
       reader.onload = (ev) => {
         try {
           const imported = JSON.parse(ev.target?.result as string);
-          if (!Array.isArray(imported)) throw new Error('Invalid format');
+          
+          const isValidAnimation = (a: any): boolean =>
+            typeof a.id === 'string' &&
+            typeof a.name === 'string' &&
+            typeof a.duration === 'number' &&
+            Array.isArray(a.keyframes) &&
+            a.keyframes.every((kf: any) =>
+              typeof kf.id === 'string' &&
+              typeof kf.time === 'number' &&
+              kf.time >= 0 && kf.time <= 1 &&
+              typeof kf.rotations === 'object'
+            );
+
+          if (!Array.isArray(imported) || !imported.every(isValidAnimation)) {
+            throw new Error('Invalid animation schema');
+          }
+          
           pushUndo();
           setCustomAnimations([...customAnimations, ...imported]);
           addLog('SUCCESS', `Imported ${imported.length} animation(s).`);

@@ -16,11 +16,36 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { Humanoid } from './engine/Humanoid';
 import { useStore } from './store';
 import { CommandRegistry } from './engine/CommandRegistry';
+import { Queue } from './engine/Queue';
+import { Interpreter } from './engine/Interpreter';
 
 export default function App() {
   const [bot, setBot] = useState<Humanoid | null>(null);
   const { addLog, view, undo, redo, customAnimations, activeAnimationId, activeKeyframeId,
-    setCustomAnimations, setActiveKeyframeId, pushUndo } = useStore();
+    setCustomAnimations, setActiveKeyframeId, pushUndo, setRunning, code } = useStore();
+
+  const handleRun = useCallback(() => {
+    if (Queue.running) return;
+    if (!bot) {
+      addLog('WARN', 'Engine is not ready yet. Please wait...');
+      return;
+    }
+    const { actions, errors } = Interpreter.compile(code);
+    if (errors.length) {
+      errors.forEach(e => addLog('ERROR', `Line ${e.line}: ${e.msg}`));
+      return;
+    }
+    if (!actions.length) {
+      addLog('WARN', 'No commands found. Write some robot.command() calls.');
+      return;
+    }
+    Queue.run(actions, bot, {
+      onLog: addLog,
+      onRunning: setRunning,
+      onStop: () => false,
+      context: { customAnimations }
+    });
+  }, [bot, code, addLog, setRunning, customAnimations]);
 
   useEffect(() => {
     addLog('INFO', 'Humanoid Code Lab initialized. Ready to run.');
@@ -49,6 +74,11 @@ export default function App() {
         redo();
         return;
       }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        if (view === 'editor') handleRun();
+        return;
+      }
 
       // Skip other shortcuts when in input fields
       if (isInput) return;
@@ -64,7 +94,7 @@ export default function App() {
             pushUndo();
             const newKf = {
               ...JSON.parse(JSON.stringify(kf)),
-              id: Math.random().toString(36).substr(2, 9),
+              id: Math.random().toString(36).substring(2, 9),
               time: Math.min(1, kf.time + 0.05)
             };
             const newKeyframes = [...anim.keyframes, newKf].sort((a: any, b: any) => a.time - b.time);
@@ -136,7 +166,7 @@ export default function App() {
   return (
     <ErrorBoundary>
       <div className="h-screen flex flex-col bg-[#282c34] text-[#abb2bf] font-sans overflow-hidden select-none">
-        <TopBar bot={bot} />
+        <TopBar bot={bot} onRun={handleRun} />
         <div className="flex-1 flex overflow-hidden">
           {view === 'editor' && <LeftPanel bot={bot} />}
           {view === 'animator' && <AnimatorLeftPanel />}
@@ -145,7 +175,7 @@ export default function App() {
             {view === 'editor' && <OutputPanel />}
             {view === 'animator' && <AnimatorTimelinePanel bot={bot} />}
           </div>
-          {view === 'editor' && <RightPanel bot={bot} />}
+          {view === 'editor' && <RightPanel bot={bot} onRun={handleRun} />}
           {view === 'animator' && <AnimatorRightPanel bot={bot} />}
         </div>
       </div>

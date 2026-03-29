@@ -28,7 +28,13 @@ export class Humanoid {
   parts: Record<string, { g: THREE.Group; defaultRot: { x: number; y: number; z: number }; defaultPos?: { x: number; y: number; z: number } }>;
   _locked: Set<string>;
   _idleT: number;
-  mats: any;
+  mats: {
+    body: THREE.MeshStandardMaterial;
+    joint: THREE.MeshStandardMaterial;
+    panel: THREE.MeshStandardMaterial;
+    visor: THREE.MeshStandardMaterial;
+    glow: THREE.MeshStandardMaterial;
+  };
   _hlPart: string | null = null;
   camTarget: THREE.Vector3;
   updateCam: () => void;

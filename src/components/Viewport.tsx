@@ -71,7 +71,7 @@ export function Viewport({ onBotReady }: { onBotReady: (bot: Humanoid) => void }
   return (
     <div ref={containerRef} className="flex-1 flex flex-col bg-[#21252b] relative">
       <canvas ref={canvasRef} className="w-full h-full block" />
-      <div className="absolute bottom-2.5 left-1/2 -translate-x-1/2 bg-[rgba(33,37,43,0.65)] border border-[#181a1f] rounded px-2.5 py-1 text-[11px] text-[#abb2bf] pointer-events-none backdrop-blur-[4px] whitespace-nowrap">
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 min-w-[300px] max-w-[500px] hidden md:flex flex-col gap-2 p-3 bg-[#282c34]/90 backdrop-blur-md rounded border border-[#181a1f] shadow-lg pointer-events-none z-10 transition-opacity duration-300">
         Drag to orbit · Scroll to zoom · Ctrl+Enter to run
       </div>
     </div>
