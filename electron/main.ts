@@ -48,7 +48,12 @@ function createWindow() {
   if (isPackaged) {
     mainWindow.loadFile(path.join(DIST, 'index.html'));
   } else {
-    mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL || `http://localhost:5173`);
+    // Dev only: Vite dev server URL is injected by vite-plugin-electron
+    const devUrl = process.env.VITE_DEV_SERVER_URL;
+    if (!devUrl) {
+      throw new Error('VITE_DEV_SERVER_URL is not set. Run via: npm run electron');
+    }
+    mainWindow.loadURL(devUrl);
   }
 
   mainWindow.on('closed', () => {
