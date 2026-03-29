@@ -34,7 +34,9 @@
   <nav class="navbar">
     <div class="container">
       <a href="#" class="nav-logo">
-        <div class="logo-icon">🤖</div>
+        <div class="logo-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="3"/><line x1="12" y1="8" x2="12" y2="11"/><line x1="8" y1="16" x2="8" y2="16.01"/><line x1="16" y1="16" x2="16" y2="16.01"/></svg>
+        </div>
         Humanoid Code Lab
       </a>
       <ul class="nav-links">
@@ -70,10 +72,12 @@
         </p>
         <div class="hero-actions">
           <a href="#download" class="btn btn-primary">
-            ⬇ Download Free
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download Free
           </a>
           <a href="#demo" class="btn btn-secondary">
-            ▶ Watch Demo
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            Watch Demo
           </a>
         </div>
       </div>
@@ -95,7 +99,9 @@
              3. Remove the .video-placeholder div -->
         <!-- <video src="intro.mp4" controls poster="poster.jpg"></video> -->
         <div class="video-placeholder">
-          <div class="play-btn">▶</div>
+          <div class="play-btn">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          </div>
           <p>Intro video coming soon</p>
         </div>
       </div>
@@ -113,37 +119,49 @@
       <div class="features-grid">
 
         <div class="feature-card reveal">
-          <div class="feature-icon blue">⌨️</div>
+          <div class="feature-icon blue">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          </div>
           <h3>Monaco Editor</h3>
           <p>The same engine behind VS Code. Full IntelliSense auto-complete for every <code>robot.*</code> command, live syntax highlighting, and bracket matching.</p>
         </div>
 
         <div class="feature-card reveal">
-          <div class="feature-icon purple">✨</div>
+          <div class="feature-icon purple">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+          </div>
           <h3>Multi-Provider AI</h3>
           <p>Describe your robot routine in plain English. Generate scripts via Google Gemini, OpenAI GPT-4o, or Anthropic Claude — switch providers in one click.</p>
         </div>
 
         <div class="feature-card reveal">
-          <div class="feature-icon green">🐛</div>
+          <div class="feature-icon green">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></svg>
+          </div>
           <h3>Visual Step Debugger</h3>
           <p>Execute your script line-by-line. The editor highlights the current instruction while the 3D robot performs the action in real-time.</p>
         </div>
 
         <div class="feature-card reveal">
-          <div class="feature-icon orange">🎓</div>
+          <div class="feature-icon orange">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+          </div>
           <h3>Training Curriculum</h3>
           <p>Interactive coding puzzles that teach robot programming concepts. Write code, click "Check", and the system validates your logic against goal conditions.</p>
         </div>
 
         <div class="feature-card reveal">
-          <div class="feature-icon red">🎬</div>
+          <div class="feature-icon red">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="17" x2="22" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/></svg>
+          </div>
           <h3>Keyframe Animator</h3>
           <p>Create custom animations with per-joint rotation sliders and a timeline. Scrub through your creation and play it back on the 3D model instantly.</p>
         </div>
 
         <div class="feature-card reveal">
-          <div class="feature-icon blue">🔒</div>
+          <div class="feature-icon blue">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
           <h3>Secure by Design</h3>
           <p>API keys encrypted via the OS native keychain using Electron's <code>safeStorage</code>. Nothing is stored in plain text — ever.</p>
         </div>
@@ -161,11 +179,11 @@
           <h2 class="section-title">Write Code.<br/>Control the Robot.</h2>
           <p class="section-desc">Python-like syntax with variables, loops, conditionals, and 25+ built-in commands. No boilerplate — just express your intent.</p>
           <ul>
-            <li><span class="check">✓</span> Variables: <code>steps = 3</code></li>
-            <li><span class="check">✓</span> Conditionals: <code>if / elif / else</code></li>
-            <li><span class="check">✓</span> Loops: <code>for i in range(N)</code></li>
-            <li><span class="check">✓</span> Comparison: <code>==  !=  &lt;  &gt;  &lt;=  &gt;=  and  or  not</code></li>
-            <li><span class="check">✓</span> Custom animations: <code>robot.play(animation='dance')</code></li>
+            <li><span class="check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span> Variables: <code>steps = 3</code></li>
+            <li><span class="check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span> Conditionals: <code>if / elif / else</code></li>
+            <li><span class="check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span> Loops: <code>for i in range(N)</code></li>
+            <li><span class="check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span> Comparison: <code>==  !=  &lt;  &gt;  &lt;=  &gt;=  and  or  not</code></li>
+            <li><span class="check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span> Custom animations: <code>robot.play(animation='dance')</code></li>
           </ul>
         </div>
 
@@ -212,29 +230,38 @@
       <div class="downloads-grid">
 
         <div class="download-card reveal">
-          <div class="os-icon">🐧</div>
+          <div class="os-icon">
+            <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.5 9.5c0-1.5 1-2.5 2.5-2.5s2.5 1 2.5 2.5c0 1-0.5 1.5-1.5 2s-1 1-1 2"/><circle cx="12" cy="17" r="0.5" fill="currentColor"/></svg>
+          </div>
           <h3>Linux</h3>
           <p class="platform-detail">.AppImage — x86_64</p>
           <a href="https://github.com/KenzBilal/HumanoidCodeLab/releases/latest" class="btn btn-primary" target="_blank" rel="noopener">
-            ⬇ Download for Linux
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download for Linux
           </a>
         </div>
 
         <div class="download-card reveal">
-          <div class="os-icon">🪟</div>
+          <div class="os-icon">
+            <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/></svg>
+          </div>
           <h3>Windows</h3>
           <p class="platform-detail">.exe — NSIS Installer</p>
           <a href="https://github.com/KenzBilal/HumanoidCodeLab/releases/latest" class="btn btn-primary" target="_blank" rel="noopener">
-            ⬇ Download for Windows
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download for Windows
           </a>
         </div>
 
         <div class="download-card reveal">
-          <div class="os-icon">🍎</div>
+          <div class="os-icon">
+            <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.236 2.636 7.855 6.356 9.312"/><path d="M15 2.458A10 10 0 0 1 22 12c0 4.236-2.636 7.855-6.356 9.312"/><path d="M12 7a5 5 0 0 1 0 10 5 5 0 0 1 0-10z"/></svg>
+          </div>
           <h3>macOS</h3>
           <p class="platform-detail">.dmg — Universal</p>
           <a href="https://github.com/KenzBilal/HumanoidCodeLab/releases/latest" class="btn btn-primary" target="_blank" rel="noopener">
-            ⬇ Download for macOS
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download for macOS
           </a>
         </div>
 
@@ -257,7 +284,7 @@
           <div class="faq-item open">
             <button class="faq-question">
               What is Humanoid Code Lab?
-              <span class="arrow">▼</span>
+              <span class="arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
             </button>
             <div class="faq-answer">
               <p>Humanoid Code Lab is a free, open-source desktop application (Electron) that lets you write Python-like scripts to control a 3D humanoid robot in real-time. It features a built-in Monaco code editor, multi-provider AI script generation, a visual step-by-step debugger, and interactive training puzzles.</p>
@@ -267,7 +294,7 @@
           <div class="faq-item">
             <button class="faq-question">
               Is it really free?
-              <span class="arrow">▼</span>
+              <span class="arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
             </button>
             <div class="faq-answer">
               <p>Yes! Humanoid Code Lab is 100% free and open-source under the Apache 2.0 license. You can download, use, modify, and redistribute it without any cost.</p>
@@ -277,7 +304,7 @@
           <div class="faq-item">
             <button class="faq-question">
               Which AI providers are supported?
-              <span class="arrow">▼</span>
+              <span class="arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
             </button>
             <div class="faq-answer">
               <p>We support Google Gemini (2.0 Flash), OpenAI (GPT-4o), and Anthropic Claude (3.7 Sonnet). You bring your own API key and can switch between providers at any time within the app.</p>
@@ -287,7 +314,7 @@
           <div class="faq-item">
             <button class="faq-question">
               Does it connect to real hardware?
-              <span class="arrow">▼</span>
+              <span class="arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
             </button>
             <div class="faq-answer">
               <p>Yes! The app includes a serial port interface that can stream commands to physical robot hardware via USB. This feature is designed for educational robotics kits and Arduino-based humanoid builds.</p>
@@ -297,7 +324,7 @@
           <div class="faq-item">
             <button class="faq-question">
               Is my API key safe?
-              <span class="arrow">▼</span>
+              <span class="arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
             </button>
             <div class="faq-answer">
               <p>Absolutely. API keys are encrypted using your OS native keychain via Electron's <code>safeStorage</code> module. Keys are never stored in localStorage, config files, or transmitted anywhere except directly to the AI provider you selected.</p>
@@ -307,7 +334,7 @@
           <div class="faq-item">
             <button class="faq-question">
               Can I contribute?
-              <span class="arrow">▼</span>
+              <span class="arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
             </button>
             <div class="faq-answer">
               <p>Of course! Check out our <a href="https://github.com/KenzBilal/HumanoidCodeLab/blob/main/CONTRIBUTING.md" target="_blank">CONTRIBUTING.md</a> on GitHub for setup instructions, PR guidelines, and code style expectations.</p>
@@ -318,7 +345,9 @@
         <!-- Contact -->
         <div class="contact-cards reveal">
           <a href="mailto:humanoidcodelab@gmail.com" class="contact-card">
-            <div class="contact-icon email">✉️</div>
+            <div class="contact-icon email">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            </div>
             <div>
               <h4>Email Us</h4>
               <p>humanoidcodelab@gmail.com</p>
@@ -326,7 +355,9 @@
           </a>
 
           <a href="https://t.me/HumanoidCodeLab" target="_blank" rel="noopener" class="contact-card">
-            <div class="contact-icon telegram">✈️</div>
+            <div class="contact-icon telegram">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </div>
             <div>
               <h4>Telegram Channel</h4>
               <p>t.me/HumanoidCodeLab</p>
@@ -334,7 +365,9 @@
           </a>
 
           <a href="https://instagram.com/hclab.ai" target="_blank" rel="noopener" class="contact-card">
-            <div class="contact-icon insta">📸</div>
+            <div class="contact-icon insta">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+            </div>
             <div>
               <h4>Follow on Instagram</h4>
               <p>@hclab.ai</p>
@@ -342,7 +375,9 @@
           </a>
 
           <a href="https://github.com/KenzBilal/HumanoidCodeLab/issues/new?template=bug_report.md" target="_blank" rel="noopener" class="contact-card">
-            <div class="contact-icon email">🐛</div>
+            <div class="contact-icon email">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
             <div>
               <h4>Report a Bug</h4>
               <p>Open a GitHub Issue</p>
@@ -350,7 +385,9 @@
           </a>
 
           <a href="https://github.com/KenzBilal/HumanoidCodeLab/issues/new?template=feature_request.md" target="_blank" rel="noopener" class="contact-card">
-            <div class="contact-icon telegram">💡</div>
+            <div class="contact-icon telegram">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg>
+            </div>
             <div>
               <h4>Request a Feature</h4>
               <p>Submit an Idea on GitHub</p>
@@ -367,7 +404,9 @@
     <div class="container">
       <div class="footer-content">
         <div class="footer-logo">
-          <div class="logo-icon">🤖</div>
+          <div class="logo-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="3"/><line x1="12" y1="8" x2="12" y2="11"/><line x1="8" y1="16" x2="8" y2="16.01"/><line x1="16" y1="16" x2="16" y2="16.01"/></svg>
+          </div>
           Humanoid Code Lab
         </div>
         <ul class="footer-links">
@@ -378,15 +417,23 @@
           <li><a href="https://github.com/KenzBilal/HumanoidCodeLab" target="_blank" rel="noopener">GitHub</a></li>
         </ul>
         <div class="footer-socials">
-          <a href="mailto:humanoidcodelab@gmail.com" class="social-btn" title="Email">✉️</a>
-          <a href="https://t.me/HumanoidCodeLab" target="_blank" rel="noopener" class="social-btn" title="Telegram">✈️</a>
-          <a href="https://instagram.com/hclab.ai" target="_blank" rel="noopener" class="social-btn" title="Instagram">📸</a>
-          <a href="https://github.com/KenzBilal/HumanoidCodeLab" target="_blank" rel="noopener" class="social-btn" title="GitHub">🌐</a>
+          <a href="mailto:humanoidcodelab@gmail.com" class="social-btn" title="Email">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          </a>
+          <a href="https://t.me/HumanoidCodeLab" target="_blank" rel="noopener" class="social-btn" title="Telegram">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </a>
+          <a href="https://instagram.com/hclab.ai" target="_blank" rel="noopener" class="social-btn" title="Instagram">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+          </a>
+          <a href="https://github.com/KenzBilal/HumanoidCodeLab" target="_blank" rel="noopener" class="social-btn" title="GitHub">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+          </a>
         </div>
       </div>
       <div class="footer-bottom">
         <p>&copy; 2026 Humanoid Code Lab. Open-source under the Apache 2.0 License.</p>
-        <p>Built with ❤️ by <a href="https://github.com/KenzBilal" target="_blank" rel="noopener">KenzBilal</a></p>
+        <p>Built by <a href="https://github.com/KenzBilal" target="_blank" rel="noopener">KenzBilal</a></p>
       </div>
     </div>
   </footer>

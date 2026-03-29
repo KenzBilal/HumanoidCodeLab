@@ -103,8 +103,10 @@ section { padding: 100px 0; }
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 16px;
+  color: #fff;
 }
+
+.nav-logo .logo-icon svg { flex-shrink: 0; }
 
 .nav-links {
   display: flex;
@@ -574,8 +576,10 @@ section { padding: 100px 0; }
 }
 
 .download-card .os-icon {
-  font-size: 44px;
   margin-bottom: 16px;
+  color: var(--accent);
+  display: flex;
+  justify-content: center;
 }
 
 .download-card h3 {
@@ -741,8 +745,10 @@ section { padding: 100px 0; }
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
+  color: #fff;
 }
+
+.footer-logo .logo-icon svg { flex-shrink: 0; }
 
 .footer-links {
   display: flex;
@@ -799,6 +805,30 @@ section { padding: 100px 0; }
   font-size: 12px;
   color: var(--text-dim);
 }
+
+/* ── Inline code ───────────────────────────────────────────────── */
+code {
+  font-family: var(--mono);
+  font-size: 0.88em;
+  background: rgba(97, 175, 239, 0.08);
+  color: var(--accent);
+  padding: 2px 7px;
+  border-radius: 5px;
+  border: 1px solid rgba(97, 175, 239, 0.12);
+}
+
+/* ── SVG icon alignment ────────────────────────────────────────── */
+.btn svg,
+.social-btn svg,
+.faq-question .arrow svg,
+.contact-icon svg { flex-shrink: 0; }
+
+.faq-question .arrow {
+  display: flex;
+  align-items: center;
+}
+
+.social-btn svg { stroke: currentColor; }
 
 /* ── Scroll animation ──────────────────────────────────────────── */
 .reveal {
