@@ -18,6 +18,7 @@ import { useStore } from './store';
 import { CommandRegistry } from './engine/CommandRegistry';
 import { Queue } from './engine/Queue';
 import { Interpreter } from './engine/Interpreter';
+import { Group as PanelGroup, Panel, Separator as PanelResizeHandle } from 'react-resizable-panels';
 
 export default function App() {
   const [bot, setBot] = useState<Humanoid | null>(null);
@@ -43,14 +44,31 @@ export default function App() {
       onLog: addLog,
       onRunning: setRunning,
       onStop: () => false,
-      context: { customAnimations }
+      context: { customAnimations },
+      isDebug: useStore.getState().isDebugMode,
+      onDebugLine: (line) => {
+        useStore.getState().setActiveDebugLine(line ?? null);
+      },
+      waitStep: () => {
+        return new Promise<void>((resolve) => {
+          useStore.getState().setDebugResolver(resolve);
+        });
+      }
     });
   }, [bot, code, addLog, setRunning, customAnimations]);
 
   useEffect(() => {
     addLog('INFO', 'Humanoid Code Lab initialized. Ready to run.');
     addLog('INFO', `${CommandRegistry.all().length} commands loaded. Click ▶ Run to start.`);
-  }, []);
+
+    if (window.electronAPI?.getEncryptedApiKey) {
+      window.electronAPI.getEncryptedApiKey().then(key => {
+        if (key && !useStore.getState().geminiApiKey) {
+          useStore.getState().setGeminiApiKey(key);
+        }
+      });
+    }
+  }, [addLog]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -168,15 +186,49 @@ export default function App() {
       <div className="h-screen flex flex-col bg-[#282c34] text-[#abb2bf] font-sans overflow-hidden select-none">
         <TopBar bot={bot} onRun={handleRun} />
         <div className="flex-1 flex overflow-hidden">
-          {view === 'editor' && <LeftPanel bot={bot} />}
-          {view === 'animator' && <AnimatorLeftPanel />}
-          <div className="flex-1 flex flex-col relative">
-            <Viewport onBotReady={setBot} />
-            {view === 'editor' && <OutputPanel />}
-            {view === 'animator' && <AnimatorTimelinePanel bot={bot} />}
-          </div>
-          {view === 'editor' && <RightPanel bot={bot} onRun={handleRun} />}
-          {view === 'animator' && <AnimatorRightPanel bot={bot} />}
+          {view === 'editor' ? (
+            <PanelGroup orientation="horizontal">
+              <Panel defaultSize={20} minSize={15} maxSize={30}>
+                <LeftPanel bot={bot} />
+              </Panel>
+              
+              <PanelResizeHandle className="w-1 bg-[#181a1f] hover:bg-purple-600/50 active:bg-purple-600 transition-colors cursor-col-resize z-10" />
+              
+              <Panel defaultSize={50} minSize={30}>
+                <div className="flex-1 flex flex-col relative h-full">
+                  <Viewport onBotReady={setBot} />
+                  <OutputPanel />
+                </div>
+              </Panel>
+              
+              <PanelResizeHandle className="w-1 bg-[#181a1f] hover:bg-purple-600/50 active:bg-purple-600 transition-colors cursor-col-resize z-10" />
+              
+              <Panel defaultSize={30} minSize={20} maxSize={50}>
+                <RightPanel bot={bot} onRun={handleRun} />
+              </Panel>
+            </PanelGroup>
+          ) : (
+            <PanelGroup orientation="horizontal">
+              <Panel defaultSize={20} minSize={15} maxSize={30}>
+                <AnimatorLeftPanel />
+              </Panel>
+              
+              <PanelResizeHandle className="w-1 bg-[#181a1f] hover:bg-purple-600/50 active:bg-purple-600 transition-colors cursor-col-resize z-10" />
+              
+              <Panel defaultSize={50} minSize={30}>
+                <div className="flex-1 flex flex-col relative h-full">
+                  <Viewport onBotReady={setBot} />
+                  <AnimatorTimelinePanel bot={bot} />
+                </div>
+              </Panel>
+
+              <PanelResizeHandle className="w-1 bg-[#181a1f] hover:bg-purple-600/50 active:bg-purple-600 transition-colors cursor-col-resize z-10" />
+              
+              <Panel defaultSize={30} minSize={20} maxSize={50}>
+                <AnimatorRightPanel bot={bot} />
+              </Panel>
+            </PanelGroup>
+          )}
         </div>
       </div>
     </ErrorBoundary>

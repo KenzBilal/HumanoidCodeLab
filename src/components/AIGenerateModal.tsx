@@ -39,19 +39,19 @@ Generate ONLY the script code. Do not include markdown formatting. Just the code
 export function AIGenerateModal({ onClose }: { onClose: () => void }) {
   const [prompt, setPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
-  const { setCode, addLog, geminiApiKey } = useStore();
+  const { setCode, addLog, geminiApiKey, aiProvider } = useStore();
 
   const handleGenerate = async () => {
     if (!prompt.trim() || !geminiApiKey) return;
 
     setIsGenerating(true);
-    addLog('INFO', 'Generating script with Gemini...');
+    addLog('INFO', `Generating script with ${aiProvider}...`);
 
     try {
       let generatedCode = '';
 
       if (window.electronAPI?.aiGenerate) {
-        const result = await window.electronAPI.aiGenerate(prompt, geminiApiKey);
+        const result = await window.electronAPI.aiGenerate(prompt, geminiApiKey, aiProvider);
         if (result.error) throw new Error(result.error);
         generatedCode = result.code || '';
       } else {

@@ -1,24 +1,34 @@
 # Humanoid Code Lab
 
-A browser-based 3D humanoid robot programming lab. Write Python-like scripts to control an animated 3D humanoid model in real-time, create custom keyframe animations, and generate scripts with AI.
+A professional, cross-platform Electron application for 3D humanoid robot programming. Write Python-like scripts to control an animated 3D humanoid model in real-time, create custom keyframe animations, learn through an interactive curriculum, and generate complex routines using multi-provider AI backend (Google Gemini, OpenAI, Anthropic Claude).
+
+> [!NOTE]
+> This repository represents the **V1.0 Production Release**, featuring secure keychain storage, automated unit testing, embedded Monaco IDE, and a fully draggable workspace.
 
 ## Features
 
-- **Real-time 3D humanoid** — Fully articulated robot with 18 controllable joints, built with Three.js
-- **Custom scripting DSL** — Python-like syntax to control the robot (`robot.walk.forward(steps=3)`)
-- **Visual animation editor** — Create keyframe-based animations with per-joint rotation control and timeline
-- **AI script generation** — Describe what you want in natural language, Gemini generates the code
-- **Persistent state** — Scripts and animations saved to localStorage across sessions
-- **Orbit camera** — Drag to rotate, scroll to zoom around the humanoid
+- **Real-time 3D Humanoid** — Fully articulated robot with 18 controllable joints, built with Three.js.
+- **Custom Scripting DSL** — Python-like syntax to control the robot (e.g., `robot.walk.forward(steps=3)`). Features multi-level `if/elif/else` branching, `#` comments, inline variables, and scoped loops.
+- **Monaco Editor Integration** — World-class IDE experience with live Auto-Complete (`robot.*` IntelliSense syntax highlighting).
+- **Visual Stepping Debugger** — Execute lines step-by-step. The live debugger highlights the exact executing line synced with the robot's physical sequence logic.
+- **Interactive Training Curriculum** — Gamified UI puzzles evaluating user scripts against target logic AST conditions.
+- **Multi-Provider AI** — Generate scripts with natural language using OpenAI GPT-4o, Anthropic Claude 3.7, and Google Gemini 2.0 Flash.
+- **Secure Keychains (`safeStorage`)** — AI provider keys are encrypted natively via the OS keychain in the Electron Main Process. No plain text `localStorage` leaks.
+- **Visual Animation Editor** — Create keyframe-based animations with per-joint rotation control and timeline.
+- **Dynamic Layout** — Fully draggable, resizable split-panes managing the Viewport, Code Editor, and the Animation Sequencer interfaces.
 
 ## Tech Stack
 
-- **React 19** + **TypeScript 5.8**
-- **Three.js** — 3D rendering and animation
-- **Zustand** — State management with persistence
-- **Tailwind CSS 4** — Styling
-- **Vite 6** — Build tooling
-- **Google Gemini API** — AI script generation
+- **Frontend:** React 19 + TypeScript 5.8
+- **Platform:** Electron (Node backend, Chromium frontend)
+- **Editor:** `@monaco-editor/react`
+- **3D Engine:** Three.js
+- **State:** Zustand with Zod schema validation
+- **Styling:** Tailwind CSS v4, Lucide React
+- **Layout:** `react-resizable-panels`
+- **Testing:** Vitest
+- **AI SDKs:** `@google/genai`, `openai`, `@anthropic-ai/sdk`
+- **Build:** Vite 6 + Electron Builder
 
 ## Setup
 
@@ -32,30 +42,33 @@ A browser-based 3D humanoid robot programming lab. Write Python-like scripts to 
 npm install
 ```
 
-### Environment Variables
-
-Create a `.env` file in the project root:
-```env
-VITE_GEMINI_API_KEY=your_gemini_api_key_here
-```
-This is required for the AI Generate feature to work effectively, keeping the key secure in the Electron main process.
-
 ### Development
+
+Run the Vite dev server and boot the application inside Electron:
 
 ```bash
 npm run dev
 ```
 
-Opens at `http://localhost:3000`.
-
 ### Production Build
+
+Package the application as a standalone desktop executable for your OS:
 
 ```bash
 npm run build
-npm run preview
 ```
 
-### Type Check
+This compiles the Vite web payload (`dist/`) and the Node.js backend (`dist-electron/`).
+
+### Verification & Testing
+
+Verify DSL compilation and script variables logic via Vitest:
+
+```bash
+npm test
+```
+
+Perform static analysis and code linters:
 
 ```bash
 npm run lint
@@ -63,38 +76,26 @@ npm run lint
 
 ## Scripting DSL
 
-The robot is controlled via a Python-like scripting language in the code editor.
+The robot is controlled via a Python-like scripting language.
 
 ### Syntax
 
 ```python
+# Movement commands pass kwargs
 robot.command(param=value)
 robot.subsystem.command(param=value)
-```
 
-- Comments start with `#`
-- Supports `for x in range(N):` loops (including `range(start, stop)` and `range(start, stop, step)`)
-- Run with the **Run** button or `Ctrl+Enter`
+# Complex Logic and Variables
+steps = 3
+if steps > 2:
+    robot.walk.forward(steps=steps)
+elif steps == 2:
+    robot.crouch()
+else:
+    robot.stand_up()
 
-### Example Scripts
-
-```python
-# Walk and wave
-robot.walk.forward(steps=3)
-robot.right_hand.wave(times=3)
-robot.turn.left(angle=90)
-robot.jump(height=1.5)
-
-# Pose sequence
-robot.crouch()
-robot.wait(seconds=1)
-robot.stand_up()
-robot.stand_on_one_leg(leg='left')
-robot.wait(seconds=1)
-robot.stand_up()
-
-# Loop example
-for i in range(3):
+# Iteration
+for x in range(3):
     robot.head.nod(times=1)
     robot.wait(seconds=0.5)
 ```
@@ -102,7 +103,6 @@ for i in range(3):
 ## Available Commands
 
 ### Head
-
 | Command | Parameters | Description |
 |---------|-----------|-------------|
 | `robot.head.look_left()` | — | Turn head left |
@@ -112,7 +112,6 @@ for i in range(3):
 | `robot.head.tilt()` | `angle` (number, default: 15) | Tilt head sideways (degrees) |
 
 ### Arms & Hands
-
 | Command | Parameters | Description |
 |---------|-----------|-------------|
 | `robot.left_hand.raise()` | — | Raise left hand |
@@ -126,8 +125,7 @@ for i in range(3):
 | `robot.left_arm.shoulder.raise()` | `angle` (number, default: 90) | Raise left shoulder (degrees) |
 | `robot.right_arm.shoulder.raise()` | `angle` (number, default: 90) | Raise right shoulder (degrees) |
 
-### Movement
-
+### Body & Movement
 | Command | Parameters | Description |
 |---------|-----------|-------------|
 | `robot.walk.forward()` | `steps` (int, default: 3) | Walk forward N steps |
@@ -135,11 +133,6 @@ for i in range(3):
 | `robot.jump()` | `height` (number, default: 1.0) | Jump vertically |
 | `robot.turn.left()` | `angle` (number, default: 90) | Turn left (degrees) |
 | `robot.turn.right()` | `angle` (number, default: 90) | Turn right (degrees) |
-
-### Body
-
-| Command | Parameters | Description |
-|---------|-----------|-------------|
 | `robot.crouch()` | — | Crouch down |
 | `robot.lay_down()` | — | Lay down on the ground |
 | `robot.stand_on_one_leg()` | `leg` ('left'/'right', default: 'left') | Stand on one leg |
@@ -147,48 +140,32 @@ for i in range(3):
 | `robot.reset()` | — | Reset to default pose |
 | `robot.idle()` | — | Return to idle pose |
 | `robot.wait()` | `seconds` (number, default: 1) | Wait N seconds |
-| `robot.play()` | `animation` (string) | Play a custom animation by name |
 
-## Custom Animations
-
-Switch to the **Animator** view to create and edit keyframe-based animations.
-
-- **Keyframes** define joint rotations at specific time points (0% to 100% of duration)
-- Each keyframe stores rotation values (X, Y, Z) per body part and a root Y offset
-- Animations are interpolated linearly between keyframes
-- Preview animations directly on the 3D model
-- Two built-in animations: `Custom Crouch` and `Custom Lay Down`
-
-## Project Structure
+## Architecture
 
 ```
 HumanoidCodeLab/
-├── index.html                  # Entry HTML
-├── package.json                # Dependencies and scripts
-├── vite.config.ts              # Vite configuration
-├── tsconfig.json               # TypeScript configuration
+├── package.json                # Dependencies and scripts (vitest, react, electron)
+├── electron/
+│   ├── main.ts                 # Electron backend: safeStorage keyring, AI processing, Hardware Serial
+│   └── preload.ts              # IPC Bridge
+├── tests/
+│   └── Interpreter.test.ts     # Core vitest logic validations (AST grammar checks)
 └── src/
-    ├── main.tsx                # React entry point
-    ├── App.tsx                 # Root component (editor/animator views)
-    ├── store.ts                # Zustand state with persistence
-    ├── index.css               # Tailwind import
+    ├── App.tsx                 # Root component with react-resizable-panels layout
+    ├── store.ts                # Zustand state (debug execution contexts, Zod hydration)
     ├── engine/
-    │   ├── Humanoid.ts         # 3D humanoid model and all animations
+    │   ├── Humanoid.ts         # 3D humanoid model and animation IK logic
     │   ├── Scene.ts            # Three.js scene, camera, lighting, render loop
-    │   ├── CommandRegistry.ts  # All 25 command definitions
-    │   ├── Interpreter.ts      # DSL parser, compiler, loop expansion
-    │   └── Queue.ts            # Sequential command execution engine
+    │   ├── CommandRegistry.ts  # Hardcoded command schemas
+    │   ├── Interpreter.ts      # Python-to-AST logic parser
+    │   └── Queue.ts            # Action orchestrator with live debug stepping
     └── components/
-        ├── Viewport.tsx                # Three.js canvas
-        ├── LeftPanel.tsx               # Body part hierarchy tree
-        ├── RightPanel.tsx              # Code editor with syntax highlighting
-        ├── OutputPanel.tsx             # Execution log panel
-        ├── TopBar.tsx                  # Navigation bar
-        ├── ErrorBoundary.tsx           # React error boundary
-        ├── AIGenerateModal.tsx         # Gemini AI script generation
-        ├── AnimatorLeftPanel.tsx       # Animation list manager
-        ├── AnimatorRightPanel.tsx      # Keyframe editor with rotation sliders
-        └── AnimatorTimelinePanel.tsx   # Timeline with keyframe markers
+        ├── Viewport.tsx        # Three.js canvas
+        ├── RightPanel.tsx      # Monaco Text Editor integration
+        ├── TopBar.tsx          # Nav with AI, Hardware reset, Curriculum triggers
+        ├── ErrorBoundary.tsx   # React error boundary
+        └── CurriculumModal.tsx # Gamified training module
 ```
 
 ## License

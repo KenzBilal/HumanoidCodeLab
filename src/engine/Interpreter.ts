@@ -72,7 +72,8 @@ function extractBody(
 }
 
 function substituteVars(argStr: string, vars: Vars): string {
-  return argStr.replace(/\b([a-zA-Z_]\w*)\b/g, (match) =>
+  // Only substitute if it's not followed by An equals sign (for keyword args)
+  return argStr.replace(/\b([a-zA-Z_]\w*)\b(?!\s*=)/g, (match) =>
     match in vars ? String(vars[match]) : match
   );
 }

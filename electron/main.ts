@@ -1,9 +1,12 @@
-import { app, BrowserWindow, ipcMain, dialog } from 'electron';
+import { app, BrowserWindow, ipcMain, dialog, safeStorage } from 'electron';
 import path from 'path';
 import { writeFileSync } from 'fs';
 import { GoogleGenAI } from '@google/genai';
+import Anthropic from '@anthropic-ai/sdk';
+import OpenAI from 'openai';
 
 let mainWindow: BrowserWindow | null = null;
+let encryptedApiKeyBuffer: Buffer | null = null; // Local memory cache for the keychain
 
 const isPackaged = app.isPackaged;
 const DIST = isPackaged
@@ -53,6 +56,26 @@ function createWindow() {
   });
 }
 
+// ── IPC: SafeStorage ────────────────────────────────────────
+ipcMain.handle('encrypt-api-key', async (_event, key: string) => {
+  if (!safeStorage.isEncryptionAvailable()) {
+    console.warn('safeStorage not available, storing in plaintext fallback.');
+    encryptedApiKeyBuffer = Buffer.from(key, 'utf8');
+    return;
+  }
+  encryptedApiKeyBuffer = safeStorage.encryptString(key);
+});
+
+ipcMain.handle('get-encrypted-api-key', async () => {
+  if (!encryptedApiKeyBuffer) return '';
+  if (!safeStorage.isEncryptionAvailable()) return encryptedApiKeyBuffer.toString('utf8');
+  try {
+    return safeStorage.decryptString(encryptedApiKeyBuffer);
+  } catch {
+    return '';
+  }
+});
+
 // ── IPC: Save file ──────────────────────────────────────────
 ipcMain.handle('save-file', async (_event, content: string) => {
   if (!mainWindow) return { success: false, error: 'No window available' };
@@ -76,12 +99,7 @@ ipcMain.handle('save-file', async (_event, content: string) => {
   }
 });
 
-// ── IPC: AI Generate ────────────────────────────────────────
-ipcMain.handle('ai-generate', async (_event, prompt, apiKey) => {
-  if (!apiKey) return { error: 'No API key provided. Please connect your AI provider.' };
-  try {
-    const ai = new GoogleGenAI({ apiKey });
-    const systemInstruction = `You are an AI assistant that generates Python-like scripts for a 3D robot.
+const SYSTEM_INSTRUCTION = `You are an AI assistant that generates Python-like scripts for a 3D robot.
 The robot supports the following commands:
 - robot.walk.forward(steps=N)
 - robot.walk.backward(steps=N)
@@ -115,13 +133,47 @@ The robot supports the following commands:
 
 Generate ONLY the script code. Do not include markdown formatting. Just the code.`;
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.0-flash-exp',
-      contents: prompt,
-      config: { systemInstruction, temperature: 0.2 }
-    });
+// ── IPC: AI Generate ────────────────────────────────────────
+ipcMain.handle('ai-generate', async (_event, prompt, apiKey, provider) => {
+  if (!apiKey) return { error: 'No API key provided. Please connect your AI provider.' };
+  
+  try {
+    let generatedCode = '';
 
-    let generatedCode = response.text || '';
+    if (provider === 'openai') {
+      const openai = new OpenAI({ apiKey });
+      const completion = await openai.chat.completions.create({
+        messages: [
+          { role: 'system', content: SYSTEM_INSTRUCTION },
+          { role: 'user', content: prompt }
+        ],
+        model: 'gpt-4o',
+        temperature: 0.2
+      });
+      generatedCode = completion.choices[0].message.content || '';
+
+    } else if (provider === 'claude') {
+      const anthropic = new Anthropic({ apiKey });
+      const msg = await anthropic.messages.create({
+        model: 'claude-3-7-sonnet-20250219',
+        max_tokens: 1000,
+        temperature: 0.2,
+        system: SYSTEM_INSTRUCTION,
+        messages: [{ role: 'user', content: prompt }]
+      });
+      generatedCode = (msg.content[0] as any).text || '';
+
+    } else {
+      // Default / Gemini
+      const ai = new GoogleGenAI({ apiKey });
+      const response = await ai.models.generateContent({
+        model: 'gemini-2.0-flash-exp',
+        contents: prompt,
+        config: { systemInstruction: SYSTEM_INSTRUCTION, temperature: 0.2 }
+      });
+      generatedCode = response.text || '';
+    }
+
     generatedCode = generatedCode.replace(/^```[a-z]*\n/gm, '').replace(/```$/gm, '').trim();
     return { code: generatedCode };
   } catch (err: any) {
@@ -129,10 +181,25 @@ Generate ONLY the script code. Do not include markdown formatting. Just the code
   }
 });
 
-// ── IPC: Serial placeholder ─────────────────────────────────
+// ── IPC: Serial communication ────────────────────────────────
+let serialPortInstance: any = null;
 ipcMain.handle('serial-communicate', async (_event, command: string) => {
-  console.log('[serial-communicate] Received command:', command);
-  return { success: false, error: 'Serial communication not yet implemented' };
+  try {
+    const { SerialPort } = await import('serialport');
+    if (!serialPortInstance) {
+      const ports = await SerialPort.list();
+      if (ports.length > 0) {
+        serialPortInstance = new SerialPort({ path: ports[0].path, baudRate: 9600 });
+      } else {
+        return { success: false, error: 'No serial hardware connected' };
+      }
+    }
+    serialPortInstance.write(command + '\\n');
+    return { success: true };
+  } catch (err: any) {
+    console.error('Serial init error:', err);
+    return { success: false, error: err.message };
+  }
 });
 
 // ── IPC: Version ────────────────────────────────────────────

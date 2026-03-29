@@ -27,7 +27,10 @@ export const Queue = (() => {
         onLog: (type: "INFO"|"ACTION"|"SUCCESS"|"ERROR"|"WARN", msg: string) => void,
         onRunning: (r: boolean) => void,
         onStop: () => boolean,
-        context: ExecutionContext
+        context: ExecutionContext,
+        isDebug?: boolean,
+        onDebugLine?: (line?: number) => void,
+        waitStep?: () => Promise<void>
       }
     ) {
       if (_running) return;
@@ -35,7 +38,7 @@ export const Queue = (() => {
       _stop = false;
       
       options.onRunning(true);
-      options.onLog('INFO', 'Running script...');
+      options.onLog('INFO', options.isDebug ? 'Running script in DEBUG mode...' : 'Running script...');
       
       const startTime = performance.now();
       
@@ -44,9 +47,19 @@ export const Queue = (() => {
           options.onLog('WARN', 'Execution stopped.'); 
           break; 
         }
-        if (performance.now() - startTime > 30000) {
+        if (!options.isDebug && performance.now() - startTime > 30000) {
           options.onLog('ERROR', 'Execution timed out (30s limit). Possible infinite loop.');
           break;
+        }
+
+        if (options.isDebug && options.onDebugLine && options.waitStep) {
+          options.onDebugLine(a.srcLine);
+          await options.waitStep();
+          // Check stop again after wait
+          if (_stop || options.onStop()) { 
+            options.onLog('WARN', 'Execution stopped.'); 
+            break; 
+          }
         }
         
         options.onLog('ACTION', fmtLog(a.path, a.params));
@@ -70,6 +83,7 @@ export const Queue = (() => {
       
       _running = false; 
       options.onRunning(false);
+      if (options.onDebugLine) options.onDebugLine(undefined);
     }
   };
 })();

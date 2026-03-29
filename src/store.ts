@@ -1,5 +1,29 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { z } from 'zod';
+
+const KeyframeSchema = z.object({
+  id: z.string(),
+  time: z.number(),
+  rootOffset: z.object({ y: z.number() }).default({ y: 0 }),
+  easing: z.enum(['linear', 'ease-in', 'ease-out', 'ease-in-out', 'bounce']).default('linear'),
+  rotations: z.record(z.string(), z.object({ x: z.number(), y: z.number(), z: z.number() }))
+});
+
+const CustomAnimationSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  duration: z.number(),
+  keyframes: z.array(KeyframeSchema).optional(),
+  rotations: z.record(z.string(), z.object({ x: z.number(), y: z.number(), z: z.number() })).optional(),
+  rootOffset: z.object({ y: z.number() }).optional(),
+});
+
+const StorageSchema = z.object({
+  customAnimations: z.array(CustomAnimationSchema).optional(),
+  code: z.string().optional(),
+  aiProvider: z.enum(['gemini', 'openai', 'claude']).optional()
+});
 
 export type EasingType = 'linear' | 'ease-in' | 'ease-out' | 'ease-in-out' | 'bounce';
 
@@ -40,11 +64,18 @@ interface AppState {
   redoStack: CustomAnimation[][];
   geminiApiKey: string;
   aiProvider: 'gemini' | 'openai' | 'claude';
+  activeDebugLine: number | null;
+  isDebugMode: boolean;
+  debugResolver: (() => void) | null;
   setView: (view: 'editor' | 'animator') => void;
   setCustomAnimations: (anims: CustomAnimation[]) => void;
   setActiveAnimationId: (id: string | null) => void;
   setActiveKeyframeId: (id: string | null) => void;
   setRunning: (running: boolean) => void;
+  setActiveDebugLine: (line: number | null) => void;
+  setIsDebugMode: (mode: boolean) => void;
+  setDebugResolver: (resolver: (() => void) | null) => void;
+  stepNext: () => void;
   setCode: (code: string) => void;
   addLog: (type: LogEntry['type'], message: string) => void;
   clearLogs: () => void;
@@ -130,11 +161,24 @@ robot.idle()`,
       redoStack: [],
       geminiApiKey: '',
       aiProvider: 'gemini',
+      activeDebugLine: null,
+      isDebugMode: false,
+      debugResolver: null,
       setView: (view) => set({ view }),
       setCustomAnimations: (customAnimations) => set({ customAnimations }),
       setActiveAnimationId: (activeAnimationId) => set({ activeAnimationId }),
       setActiveKeyframeId: (activeKeyframeId) => set({ activeKeyframeId }),
       setRunning: (isRunning) => set({ isRunning }),
+      setActiveDebugLine: (activeDebugLine) => set({ activeDebugLine }),
+      setIsDebugMode: (isDebugMode) => set({ isDebugMode }),
+      setDebugResolver: (debugResolver) => set({ debugResolver }),
+      stepNext: () => {
+        const state = get();
+        if (state.debugResolver) {
+          state.debugResolver();
+          set({ debugResolver: null });
+        }
+      },
       setCode: (code) => set({ code }),
       addLog: (type, message) => set((state) => ({ logs: [...state.logs, { id: logId++, type, message }] })),
       clearLogs: () => set({ logs: [] }),
@@ -174,16 +218,31 @@ robot.idle()`,
         const newAnims = fn(state.customAnimations);
         set({ customAnimations: newAnims });
       },
-      setGeminiApiKey: (geminiApiKey) => set({ geminiApiKey }),
+      setGeminiApiKey: (geminiApiKey) => {
+        if (window.electronAPI) window.electronAPI.encryptApiKey(geminiApiKey);
+        set({ geminiApiKey });
+      },
       setAiProvider: (aiProvider) => set({ aiProvider }),
-      clearApiKey: () => set({ geminiApiKey: '', aiProvider: 'gemini' })
+      clearApiKey: () => {
+        if (window.electronAPI) window.electronAPI.encryptApiKey('');
+        set({ geminiApiKey: '', aiProvider: 'gemini' });
+      }
     }),
     {
       name: 'humanoid-storage',
-      partialize: (state) => ({ customAnimations: state.customAnimations, code: state.code, geminiApiKey: state.geminiApiKey, aiProvider: state.aiProvider }),
+      // SEC-02: Remote API Keys should never be serialized to basic localStorage. 
+      // It should be fetched synchronously from the secured main-process DB/keychain at boot.
+      partialize: (state) => ({ customAnimations: state.customAnimations, code: state.code, aiProvider: state.aiProvider }),
       merge: (persistedState: any, currentState) => {
-        if (persistedState?.customAnimations) {
-          persistedState.customAnimations = persistedState.customAnimations.map((anim: any) => {
+        const result = StorageSchema.safeParse(persistedState);
+        if (!result.success) {
+          console.warn('[Zod] LocalStorage hydration failed schema validation. Falling back to defaults.', result.error);
+          return currentState;
+        }
+
+        const validState = result.data;
+        if (validState.customAnimations) {
+          validState.customAnimations = validState.customAnimations.map((anim: any) => {
             if (!anim.keyframes && anim.rotations) {
               return {
                 ...anim,
@@ -202,12 +261,13 @@ robot.idle()`,
               ...anim,
               keyframes: (anim.keyframes || []).map((kf: any) => ({
                 ...kf,
-                easing: kf.easing || 'linear'
+                easing: kf.easing || 'linear',
+                rootOffset: kf.rootOffset || { y: 0 }
               }))
             };
-          });
+          }) as unknown as CustomAnimation[];
         }
-        return { ...currentState, ...persistedState };
+        return { ...currentState, ...validState } as AppState;
       }
     }
   )

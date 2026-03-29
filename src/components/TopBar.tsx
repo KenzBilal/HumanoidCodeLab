@@ -2,15 +2,16 @@ import { useState, useEffect, useRef } from 'react';
 import { useStore } from '../store';
 import { Queue } from '../engine/Queue';
 import { Humanoid } from '../engine/Humanoid';
-import { Play, Square } from 'lucide-react';
+import { Play, Square, Bug, StepForward, GraduationCap } from 'lucide-react';
 import { AIConnectModal } from './AIConnectModal';
 import { AIGenerateModal } from './AIGenerateModal';
 import { SettingsModal } from './SettingsModal';
+import { CurriculumModal } from './CurriculumModal';
 
 type UpdateState = 'idle' | 'checking' | 'available' | 'downloading' | 'downloaded' | 'error' | 'not-available';
 
 export function TopBar({ bot, onRun }: { bot: Humanoid | null, onRun: () => void }) {
-  const { addLog, setRunning, isRunning, view, setView, geminiApiKey } = useStore();
+  const { addLog, setRunning, isRunning, view, setView, geminiApiKey, isDebugMode, setIsDebugMode, stepNext, debugResolver } = useStore();
   const [version, setVersion] = useState('');
   const [updateState, setUpdateState] = useState<UpdateState>('idle');
   const [newVersion, setNewVersion] = useState('');
@@ -22,6 +23,7 @@ export function TopBar({ bot, onRun }: { bot: Humanoid | null, onRun: () => void
   const [showConnectModal, setShowConnectModal] = useState(false);
   const [showAIModal, setShowAIModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [showCurriculumModal, setShowCurriculumModal] = useState(false);
 
   const aiConnected = !!geminiApiKey;
 
@@ -85,15 +87,33 @@ export function TopBar({ bot, onRun }: { bot: Humanoid | null, onRun: () => void
     window.electronAPI.installUpdate();
   };
 
+  const handleRunNormal = () => {
+    setIsDebugMode(false);
+    onRun();
+  };
+
+  const handleRunDebug = () => {
+    setIsDebugMode(true);
+    onRun();
+  };
+
   const handleReset = async () => {
     if (!bot) return;
     Queue.stop();
+    if (debugResolver) stepNext(); // force resolve to finish
     await new Promise(r => setTimeout(r, 80));
     addLog('INFO', 'Resetting humanoid\u2026');
     await bot.resetPose(true);
     addLog('SUCCESS', 'Reset complete.');
     setRunning(false);
+    setIsDebugMode(false);
   };
+
+  const handleStop = () => {
+    Queue.stop();
+    if (debugResolver) stepNext();
+    setIsDebugMode(false);
+  }
 
   const handleAIClick = () => {
     if (aiConnected) {
@@ -168,13 +188,29 @@ export function TopBar({ bot, onRun }: { bot: Humanoid | null, onRun: () => void
           {view === 'editor' && (
             <div className="flex items-center gap-2 mr-2">
               {isRunning ? (
-                <button onClick={() => Queue.stop()} className="flex items-center gap-1.5 px-3 py-1 bg-[#e06c75]/20 text-[#e06c75] hover:bg-[#e06c75]/30 rounded text-xs font-semibold transition-colors">
-                  <Square size={12} fill="currentColor" /> Stop
-                </button>
+                <>
+                  <button onClick={handleStop} className="flex items-center gap-1.5 px-3 py-1 bg-[#e06c75]/20 text-[#e06c75] hover:bg-[#e06c75]/30 rounded text-xs font-semibold transition-colors">
+                    <Square size={12} fill="currentColor" /> Stop
+                  </button>
+                  {isDebugMode && (
+                    <button 
+                      onClick={stepNext} 
+                      disabled={!debugResolver}
+                      className="flex items-center gap-1.5 px-3 py-1 bg-yellow-500/20 text-yellow-500 hover:bg-yellow-500/30 disabled:opacity-50 disabled:cursor-not-allowed rounded text-xs font-semibold transition-colors"
+                    >
+                      <StepForward size={12} fill="currentColor" /> Step
+                    </button>
+                  )}
+                </>
               ) : (
-                <button onClick={onRun} className="flex items-center gap-1.5 px-3 py-1 bg-[#98c379]/20 text-[#98c379] hover:bg-[#98c379]/30 rounded text-xs font-semibold transition-colors">
-                  <Play size={12} fill="currentColor" /> Run
-                </button>
+                <>
+                  <button onClick={handleRunNormal} className="flex items-center gap-1.5 px-3 py-1 bg-[#98c379]/20 text-[#98c379] hover:bg-[#98c379]/30 rounded text-xs font-semibold transition-colors">
+                    <Play size={12} fill="currentColor" /> Run
+                  </button>
+                  <button onClick={handleRunDebug} className="flex items-center gap-1.5 px-3 py-1 bg-yellow-500/20 text-yellow-500 hover:bg-yellow-500/30 rounded text-xs font-semibold transition-colors">
+                    <Bug size={12} /> Debug
+                  </button>
+                </>
               )}
               <div className="w-px h-4 bg-[#3E4451] ml-2" />
             </div>
@@ -184,6 +220,14 @@ export function TopBar({ bot, onRun }: { bot: Humanoid | null, onRun: () => void
             className="flex items-center gap-1.5 px-3 py-1 rounded text-[12px] font-semibold transition-colors duration-120 border bg-[#2b2f36] border-[#181a1f] text-white hover:bg-[#333842] cursor-pointer"
           >
             ↺ Reset
+          </button>
+
+          <button
+            onClick={() => setShowCurriculumModal(true)}
+            className="flex items-center justify-center w-8 h-8 rounded text-[14px] bg-[#333842] text-[#5c6370] hover:text-[#abb2bf] hover:bg-green-600/20 hover:text-green-400 transition-colors cursor-pointer"
+            title="Curriculum"
+          >
+            <GraduationCap size={16} />
           </button>
 
           {/* AI Button — locked or unlocked */}
@@ -251,6 +295,9 @@ export function TopBar({ bot, onRun }: { bot: Humanoid | null, onRun: () => void
           onClose={() => setShowSettingsModal(false)}
           onKeyChange={() => {}}
         />
+      )}
+      {showCurriculumModal && (
+        <CurriculumModal onClose={() => setShowCurriculumModal(false)} />
       )}
     </>
   );
