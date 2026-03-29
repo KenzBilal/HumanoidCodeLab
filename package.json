@@ -5,7 +5,16 @@
   "type": "module",
   "main": "dist-electron/main.js",
   "author": "KenzBilal",
-  "description": "A 3D humanoid robot programming lab with scripting, animation editor, and AI generation",
+  "license": "Apache-2.0",
+  "description": "Cross-platform Electron IDE for 3D humanoid robot programming — Monaco Editor, multi-provider AI, visual step debugger, and training curriculum.",
+  "homepage": "https://github.com/KenzBilal/HumanoidCodeLab",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KenzBilal/HumanoidCodeLab.git"
+  },
+  "bugs": {
+    "url": "https://github.com/KenzBilal/HumanoidCodeLab/issues"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",

@@ -1,5 +1,8 @@
 {
-  "name": "",
-  "description": "",
+  "name": "Humanoid Code Lab",
+  "description": "Cross-platform Electron IDE for 3D humanoid robot programming — Monaco Editor, AI generation, visual debugger, and training curriculum.",
+  "version": "1.0.0",
+  "author": "KenzBilal",
+  "homepage": "https://github.com/KenzBilal/HumanoidCodeLab",
   "requestFramePermissions": []
 }
