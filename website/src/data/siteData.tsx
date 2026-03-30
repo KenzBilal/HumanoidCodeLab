@@ -61,8 +61,8 @@ export const FAQ = [
 ];
 
 export const RELEASES = [
-  { version: '1.0.0-rc', date: 'March 2026', notes: 'Initial Production Release Candidate with Monaco Editor and Hardware Bridge.' },
-  { version: '0.9.0-beta', date: 'Jan 2026', notes: 'Public beta launch with 3D viewport and basic DSL interpreter.' }
+  { version: '1.0.0', date: 'March 2026', notes: 'Official Production Release with Monaco Editor, 3D Viewport, and Hardware Bridge.' },
+  { version: '0.9.5-beta', date: 'Feb 2026', notes: 'Public beta launch with improved DSL interpreter and performance fixes.' }
 ];
 
 export const COMMANDS = [

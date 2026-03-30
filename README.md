@@ -168,6 +168,14 @@ HumanoidCodeLab/
         └── CurriculumModal.tsx # Gamified training module
 ```
 
+
+## Website & SEO Status
+
+The official landing page for **Humanoid Code Lab** is fully optimized for production:
+- **SEO Ready**: Comprehensive meta tags, OpenGraph, and Twitter Cards are implemented in the `website/index.html`.
+- **Direct Downloads**: The [Download Page](file:///home/kenz/Desktop/HumanoidCodeLab/website/src/pages/Download.tsx) is configured with direct links to **v1.0.0** release assets (.AppImage, .exe, .dmg).
+- **3D Visualization**: The landing page features a real-time `Three.js` scene with the [robot.glb](file:///home/kenz/Desktop/HumanoidCodeLab/website/public/models/robot.glb) model.
+
 ## License
 
 Apache-2.0
