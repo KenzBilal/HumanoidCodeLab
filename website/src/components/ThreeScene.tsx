@@ -19,10 +19,10 @@ const ThreeScene: React.FC = () => {
     camera.position.z = 8;
 
     /* ─── Lighting ─── */
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
     scene.add(ambientLight);
 
-    const pointLight = new THREE.PointLight(0x61afef, 1);
+    const pointLight = new THREE.PointLight(0x61afef, 2);
     pointLight.position.set(5, 5, 5);
     scene.add(pointLight);
 
@@ -64,7 +64,7 @@ const ThreeScene: React.FC = () => {
         model.scale.setScalar(scale);
 
         robotGroup.add(model);
-        robotGroup.position.set(-4.5, 0, -5);
+        robotGroup.position.set(-4.5, 0, -2);
       },
       (xhr: ProgressEvent) => {
         console.log(`Loading: ${(xhr.loaded / xhr.total) * 100}%`);
@@ -77,7 +77,7 @@ const ThreeScene: React.FC = () => {
           wireframeMaterial
         );
         robotGroup.add(fallback);
-        robotGroup.position.set(-4.5, 0, -5);
+        robotGroup.position.set(-4.5, 0, -2);
       }
     );
 
@@ -167,7 +167,7 @@ const ThreeScene: React.FC = () => {
       // Camera parallax
       camera.position.x += (mouseX * 2 - camera.position.x) * 0.02;
       camera.position.y += (-mouseY * 1.5 - camera.position.y) * 0.02;
-      camera.lookAt(-4.5, 0, -4);
+      camera.lookAt(-4.5, 0, -2);
 
       renderer.render(scene, camera);
     };
@@ -206,7 +206,7 @@ const ThreeScene: React.FC = () => {
         inset: 0, 
         zIndex: 0, 
         pointerEvents: 'none', 
-        opacity: 0.45 
+        opacity: 1 
       }} 
     />
   );
