@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
 const ThreeScene: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -25,46 +26,51 @@ const ThreeScene: React.FC = () => {
     pointLight.position.set(5, 5, 5);
     scene.add(pointLight);
 
-    /* ─── Robot Wireframe (Humanoid) ─── */
-    const robot = new THREE.Group();
-    const wireframeMaterial = new THREE.MeshBasicMaterial({ 
-      color: 0x61afef, 
-      wireframe: true, 
-      transparent: true, 
-      opacity: 0.25 
-    });
+    /* ─── Robot Model Loading ─── */
+    const MODEL_URL = '/models/robot.glb'; // EDIT THIS PATH ANYTIME TO SWAP MODELS
+    const robotGroup = new THREE.Group();
+    scene.add(robotGroup);
 
-    // Torso
-    const torso = new THREE.Mesh(new THREE.BoxGeometry(2, 3, 1), wireframeMaterial);
-    robot.add(torso);
+    const loader = new GLTFLoader();
+    loader.load(
+      MODEL_URL,
+      (gltf) => {
+        const model = gltf.scene;
 
-    // Head
-    const head = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), wireframeMaterial);
-    head.position.y = 2.2;
-    robot.add(head);
+        // 1. Calculate Bounding Box for "Auto-Scaling"
+        const box = new THREE.Box3().setFromObject(model);
+        const size = new THREE.Vector3();
+        box.getSize(size);
+        const center = new THREE.Vector3();
+        box.getCenter(center);
 
-    // Arms
-    const leftArm = new THREE.Mesh(new THREE.BoxGeometry(0.5, 2.5, 0.5), wireframeMaterial);
-    leftArm.position.set(-1.4, 0.3, 0);
-    leftArm.rotation.z = 0.2;
-    robot.add(leftArm);
+        // 2. Center the Model Pivot
+        model.position.x += (model.position.x - center.x);
+        model.position.y += (model.position.y - center.y);
+        model.position.z += (model.position.z - center.z);
 
-    const rightArm = new THREE.Mesh(new THREE.BoxGeometry(0.5, 2.5, 0.5), wireframeMaterial);
-    rightArm.position.set(1.4, 0.3, 0);
-    rightArm.rotation.z = -0.2;
-    robot.add(rightArm);
+        // 3. Scale to a Standard Viz Height (e.g., 5 units tall)
+        const maxDim = Math.max(size.x, size.y, size.z);
+        const scale = 5 / maxDim;
+        model.scale.setScalar(scale);
 
-    // Legs
-    const leftLeg = new THREE.Mesh(new THREE.BoxGeometry(0.7, 3, 0.7), wireframeMaterial);
-    leftLeg.position.set(-0.6, -3.2, 0);
-    robot.add(leftLeg);
-
-    const rightLeg = new THREE.Mesh(new THREE.BoxGeometry(0.7, 3, 0.7), wireframeMaterial);
-    rightLeg.position.set(0.6, -3.2, 0);
-    robot.add(rightLeg);
-
-    robot.position.set(2, 0, -5);
-    scene.add(robot);
+        robotGroup.add(model);
+        robotGroup.position.set(2, 0, -5);
+      },
+      (xhr) => {
+        console.log(`Loading: ${(xhr.loaded / xhr.total) * 100}%`);
+      },
+      (error) => {
+        console.error('Model failed to load:', error);
+        // Fallback: Show a simple wireframe sphere if model missing
+        const fallback = new THREE.Mesh(
+          new THREE.IcosahedronGeometry(2, 1),
+          new THREE.MeshBasicMaterial({ color: 0x61afef, wireframe: true, opacity: 0.3, transparent: true })
+        );
+        robotGroup.add(fallback);
+        robotGroup.position.set(2, 0, -5);
+      }
+    );
 
     /* ─── Floating Shapes ─── */
     const shapes: THREE.Mesh[] = [];
@@ -132,8 +138,8 @@ const ThreeScene: React.FC = () => {
       requestAnimationFrame(animate);
 
       // Idle breathing for robot
-      robot.position.y = Math.sin(Date.now() * 0.001) * 0.1;
-      robot.rotation.y += 0.002;
+      robotGroup.position.y = Math.sin(Date.now() * 0.001) * 0.1;
+      robotGroup.rotation.y += 0.002;
 
       // Shapes animation
       shapes.forEach((s) => {
