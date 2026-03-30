@@ -32,9 +32,18 @@ const ThreeScene: React.FC = () => {
     scene.add(robotGroup);
 
     const loader = new GLTFLoader();
+    
+    // Wireframe material for background shapes and fallback
+    const wireframeMaterial = new THREE.MeshBasicMaterial({ 
+      color: 0x61afef, 
+      wireframe: true, 
+      transparent: true, 
+      opacity: 0.25 
+    });
+
     loader.load(
       MODEL_URL,
-      (gltf) => {
+      (gltf: any) => {
         const model = gltf.scene;
 
         // 1. Calculate Bounding Box for "Auto-Scaling"
@@ -57,15 +66,15 @@ const ThreeScene: React.FC = () => {
         robotGroup.add(model);
         robotGroup.position.set(2, 0, -5);
       },
-      (xhr) => {
+      (xhr: ProgressEvent) => {
         console.log(`Loading: ${(xhr.loaded / xhr.total) * 100}%`);
       },
-      (error) => {
+      (error: ErrorEvent | any) => {
         console.error('Model failed to load:', error);
         // Fallback: Show a simple wireframe sphere if model missing
         const fallback = new THREE.Mesh(
           new THREE.IcosahedronGeometry(2, 1),
-          new THREE.MeshBasicMaterial({ color: 0x61afef, wireframe: true, opacity: 0.3, transparent: true })
+          wireframeMaterial
         );
         robotGroup.add(fallback);
         robotGroup.position.set(2, 0, -5);
