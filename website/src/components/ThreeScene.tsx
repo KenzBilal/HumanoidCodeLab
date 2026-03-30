@@ -64,7 +64,7 @@ const ThreeScene: React.FC = () => {
         model.scale.setScalar(scale);
 
         robotGroup.add(model);
-        robotGroup.position.set(-4.5, 0, -2);
+        robotGroup.position.set(-6, 0, -2);
       },
       (xhr: ProgressEvent) => {
         console.log(`Loading: ${(xhr.loaded / xhr.total) * 100}%`);
@@ -77,7 +77,7 @@ const ThreeScene: React.FC = () => {
           wireframeMaterial
         );
         robotGroup.add(fallback);
-        robotGroup.position.set(-4.5, 0, -2);
+        robotGroup.position.set(-6, 0, -2);
       }
     );
 
@@ -167,7 +167,7 @@ const ThreeScene: React.FC = () => {
       // Camera parallax
       camera.position.x += (mouseX * 2 - camera.position.x) * 0.02;
       camera.position.y += (-mouseY * 1.5 - camera.position.y) * 0.02;
-      camera.lookAt(-4.5, 0, -2);
+      camera.lookAt(0, 0, -2);
 
       renderer.render(scene, camera);
     };
