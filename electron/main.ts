@@ -216,31 +216,44 @@ ipcMain.handle('ai-generate', async (_event, prompt, apiKey, provider) => {
       generatedCode = (msg.content[0] as any).text || '';
 
     } else if (provider === 'grok') {
-      // Grok API - using xAI's API
-      const response = await fetch('https://api.x.ai/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`
-        },
-        body: JSON.stringify({
-          model: 'grok-beta',
-          messages: [
-            { role: 'system', content: SYSTEM_INSTRUCTION },
-            { role: 'user', content: prompt }
-          ],
-          temperature: 0.2,
-          max_tokens: 1000
-        })
-      });
+      // Grok API - using xAI's API with timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
       
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error?.message || 'Grok API error');
+      try {
+        const response = await fetch('https://api.x.ai/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`
+          },
+          body: JSON.stringify({
+            model: 'grok-beta',
+            messages: [
+              { role: 'system', content: SYSTEM_INSTRUCTION },
+              { role: 'user', content: prompt }
+            ],
+            temperature: 0.2,
+            max_tokens: 1000
+          }),
+          signal: controller.signal
+        });
+clearTimeout(timeoutId);
+       
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error?.message || 'Grok API error');
+        }
+        
+        const data = await response.json();
+        generatedCode = data.choices?.[0]?.message?.content || '';
+      } catch (fetchErr: any) {
+        clearTimeout(timeoutId);
+        if (fetchErr.name === 'AbortError') {
+          throw new Error('Request timed out after 30 seconds. Please try again.');
+        }
+        throw fetchErr;
       }
-      
-      const data = await response.json();
-      generatedCode = data.choices?.[0]?.message?.content || '';
 
     } else {
       // Default / Gemini

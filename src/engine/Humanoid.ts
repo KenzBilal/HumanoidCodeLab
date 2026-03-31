@@ -27,6 +27,7 @@ export class Humanoid {
   root: THREE.Group;
   parts: Record<string, { g: THREE.Group; defaultRot: { x: number; y: number; z: number }; defaultPos?: { x: number; y: number; z: number } }>;
   _locked: Set<string>;
+  _animRafIds: Map<string, number>;
   _idleT: number;
   mats: {
     body: THREE.MeshStandardMaterial;
@@ -46,6 +47,7 @@ export class Humanoid {
     this.root = new THREE.Group();
     this.parts = {};
     this._locked = new Set();
+    this._animRafIds = new Map();
     this._idleT = 0;
     this._weightShift = new THREE.Vector3(0, 0, 0);
     this.camTarget = camTarget;
@@ -194,8 +196,13 @@ export class Humanoid {
   }
 
   animateJoint(name: string, target: { x?: number; y?: number; z?: number }, ms = 620): Promise<void> {
+    if (ms <= 0) ms = 100;
     const part = this.parts[name];
     if (!part) return Promise.resolve();
+    
+    const existingRafId = this._animRafIds.get(name);
+    if (existingRafId) cancelAnimationFrame(existingRafId);
+    
     this._locked.add(name);
     const s = { x: part.g.rotation.x, y: part.g.rotation.y, z: part.g.rotation.z };
     const t0 = performance.now();
@@ -208,10 +215,17 @@ export class Humanoid {
         rot.y = s.y + ((target.y ?? s.y) - s.y) * e;
         rot.z = s.z + ((target.z ?? s.z) - s.z) * e;
         this.preventFloorClipping();
-        if (t < 1) requestAnimationFrame(tick);
-        else { this._locked.delete(name); res(); }
+        if (t < 1) {
+          const rafId = requestAnimationFrame(tick);
+          this._animRafIds.set(name, rafId);
+        } else { 
+          this._animRafIds.delete(name);
+          this._locked.delete(name); 
+          res(); 
+        }
       };
-      requestAnimationFrame(tick);
+      const rafId = requestAnimationFrame(tick);
+      this._animRafIds.set(name, rafId);
     });
   }
 
@@ -610,7 +624,8 @@ export class Humanoid {
     const targetRotX = 0;
 
     const startRots: Record<string, {x: number, y: number, z: number}> = {};
-    this._locked.forEach(n => {
+    const lockedSnapshot = new Set(this._locked);
+    lockedSnapshot.forEach(n => {
       if (p[n]) {
         startRots[n] = { x: p[n].g.rotation.x, y: p[n].g.rotation.y, z: p[n].g.rotation.z };
       }
@@ -689,7 +704,6 @@ export class Humanoid {
 
   async resetPose(animated = true): Promise<void> {
     this.poseState = 'standing';
-    this._locked.clear();
     this._weightShift.set(0, 0, 0);
     const jointPromises = Object.entries(this.parts).map(([name, part]) => {
       const d = part.defaultRot;
@@ -702,6 +716,7 @@ export class Humanoid {
         : (part.g.rotation.set(d.x, d.y, d.z), Promise.resolve());
     });
     await Promise.all(jointPromises);
+    this._locked.clear();
     const t0 = performance.now();
     const ms = 500;
     const sx = this.root.position.x, sz = this.root.position.z, sy = this.root.rotation.y;
@@ -811,7 +826,9 @@ export class Humanoid {
 
   async playCustom(anim: any, onProgress?: (t: number) => void): Promise<void> {
     this.stopPlayback();
-    if (this.poseState !== 'standing') await this.standUp();
+    if (this.poseState !== 'standing') {
+      await this.standUp();
+    }
     this.poseState = 'custom';
 
     const keyframes = anim.keyframes || [];

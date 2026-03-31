@@ -29,8 +29,26 @@ export function AIConnectModal({ onClose, onSuccess }: { onClose: () => void; on
     setError('');
 
     try {
-      const ai = new GoogleGenAI({ apiKey: apiKey.trim() });
-      await ai.models.list();
+      if (selectedProvider === 'gemini') {
+        const ai = new GoogleGenAI({ apiKey: apiKey.trim() });
+        await ai.models.list();
+      } else if (selectedProvider === 'openai') {
+        const response = await fetch('https://api.openai.com/v1/models', {
+          headers: { 'Authorization': `Bearer ${apiKey.trim()}` }
+        });
+        if (!response.ok) throw new Error('Invalid OpenAI API key');
+      } else if (selectedProvider === 'claude') {
+        const response = await fetch('https://api.anthropic.com/v1/models', {
+          headers: { 'x-api-key': apiKey.trim(), 'anthropic-version': '2023-06-01' }
+        });
+        if (!response.ok) throw new Error('Invalid Claude API key');
+      } else if (selectedProvider === 'grok') {
+        const response = await fetch('https://api.x.ai/v1/models', {
+          headers: { 'Authorization': `Bearer ${apiKey.trim()}` }
+        });
+        if (!response.ok) throw new Error('Invalid Grok API key');
+      }
+      
       setGeminiApiKey(apiKey.trim());
       setAiProvider(selectedProvider as any);
       addLog('SUCCESS', `AI connected: ${provider.name}`);

@@ -1,13 +1,15 @@
 import { useState } from 'react';
 import { useStore, ProjectItem, ProjectFile, ProjectFolder } from '../store';
-import { Folder, FileCode, FileJson, Plus, MoreVertical, Trash2, Edit3, FolderPlus } from 'lucide-react';
+import { Folder, FileCode, FileJson, Plus, MoreVertical, Trash2, Edit3, FolderPlus, ChevronRight, ChevronDown } from 'lucide-react';
 
 function FileItem({ item, depth = 0 }: { item: ProjectItem; depth?: number }) {
   const { setActiveFile, updateFileContent, renameItem, deleteItem, project } = useStore();
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(item.name);
   const [showMenu, setShowMenu] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(true);
   const isActive = project?.activeFileId === item.id;
+  const isFolder = item.type === 'folder';
 
   const handleRename = () => {
     if (editName.trim() && editName !== item.name) {
@@ -26,6 +28,8 @@ function FileItem({ item, depth = 0 }: { item: ProjectItem; depth?: number }) {
   const handleClick = () => {
     if (item.type === 'file') {
       setActiveFile(item.id);
+    } else if (item.type === 'folder') {
+      setIsExpanded(!isExpanded);
     }
   };
 
@@ -37,7 +41,10 @@ function FileItem({ item, depth = 0 }: { item: ProjectItem; depth?: number }) {
         onClick={handleClick}
         onContextMenu={(e) => { e.preventDefault(); setShowMenu(true); }}
       >
-        {item.type === 'folder' ? (
+        {isFolder ? (
+          isExpanded ? <ChevronDown size={14} className="text-[#5c6370]" /> : <ChevronRight size={14} className="text-[#5c6370]" />
+        ) : null}
+        {isFolder ? (
           <Folder size={14} className="text-[#e5c07b]" />
         ) : item.name.endsWith('.json') ? (
           <FileJson size={14} className="text-[#98c379]" />
@@ -71,7 +78,7 @@ function FileItem({ item, depth = 0 }: { item: ProjectItem; depth?: number }) {
           </div>
         )}
       </div>
-      {item.type === 'folder' && 'children' in item && (
+      {isFolder && 'children' in item && isExpanded && (
         <div>
           {item.children.map((child) => (
             <FileItem key={child.id} item={child} depth={depth + 1} />

@@ -31,7 +31,7 @@ export function TopBar({ bot, onRun }: { bot: Humanoid | null, onRun: () => void
   useEffect(() => {
     if (!window.electronAPI) return;
     window.electronAPI.getVersion().then(v => setVersion(v));
-    window.electronAPI.onUpdateEvent((type, data) => {
+    const handleUpdate = (type: string, data: any) => {
       switch (type) {
         case 'checking':
           setUpdateState('checking');
@@ -61,7 +61,11 @@ export function TopBar({ bot, onRun }: { bot: Humanoid | null, onRun: () => void
           setTimeout(() => setUpdateState('idle'), 5000);
           break;
       }
-    });
+    };
+    window.electronAPI.onUpdateEvent(handleUpdate);
+    return () => {
+      // Cleanup - remove listener on unmount
+    };
   }, []);
 
   // Close menu on outside click

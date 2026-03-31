@@ -47,7 +47,7 @@ export const Queue = (() => {
           options.onLog('WARN', 'Execution stopped.'); 
           break; 
         }
-        if (!options.isDebug && performance.now() - startTime > 30000) {
+        if (performance.now() - startTime > 30000) {
           options.onLog('ERROR', 'Execution timed out (30s limit). Possible infinite loop.');
           break;
         }
@@ -72,11 +72,13 @@ export const Queue = (() => {
         } catch(e: any) { 
           const lineRef = a.srcLine ? ` (line ${a.srcLine})` : '';
           options.onLog('ERROR', `${a.rawLine}${lineRef} → ${e.message}`); 
+          _stop = true;
           break; 
         }
       }
       
-      if (!_stop && !options.onStop()) { 
+      const hasError = _stop;
+      if (!hasError && !options.onStop()) { 
         bot.highlight(null); 
         options.onLog('SUCCESS', 'Execution complete.'); 
       }

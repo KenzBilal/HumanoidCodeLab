@@ -195,6 +195,13 @@ export default function App() {
           if (bot && endAnim) bot.scrubTo(endAnim, 1);
           return;
         }
+        // Space - Play/Pause animation
+        if (e.key === ' ' && !isInput) {
+          e.preventDefault();
+          const { isPlaying, setPlaying } = useStore.getState();
+          setPlaying(!isPlaying);
+          return;
+        }
       }
     };
 

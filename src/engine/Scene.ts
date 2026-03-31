@@ -75,7 +75,9 @@ export class SceneManager {
     this.bot = new Humanoid(this.scene, this.camTarget, this.updateCam.bind(this));
 
     this.setupEvents(canvas);
-    this.resize(canvas.parentElement!);
+    if (canvas.parentElement) {
+      this.resize(canvas.parentElement);
+    }
     this.loop();
   }
 

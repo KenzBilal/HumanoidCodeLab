@@ -135,7 +135,7 @@ interface AppState {
   redo: () => void;
   updateCustomAnimations: (fn: (anims: CustomAnimation[]) => CustomAnimation[]) => void;
   setGeminiApiKey: (key: string) => void;
-  setAiProvider: (p: 'gemini' | 'openai' | 'claude') => void;
+  setAiProvider: (p: AIProvider) => void;
   clearApiKey: () => void;
   setProject: (project: Project | null) => void;
   setProjectDirty: (dirty: boolean) => void;
@@ -153,6 +153,7 @@ interface AppState {
 
 let logId = 0;
 const MAX_UNDO = 30;
+const MAX_LOGS = 500;
 
 export const useStore = create<AppState>()(
   persist(
@@ -240,7 +241,13 @@ robot.idle()`,
         }
       },
       setCode: (code) => set({ code }),
-      addLog: (type, message) => set((state) => ({ logs: [...state.logs, { id: logId++, type, message }] })),
+      addLog: (type, message) => set((state) => { 
+        const newLogs = [...state.logs, { id: logId++, type, message }];
+        if (newLogs.length > MAX_LOGS) {
+          newLogs.splice(0, newLogs.length - MAX_LOGS);
+        }
+        return { logs: newLogs };
+      }),
       clearLogs: () => set({ logs: [] }),
       setActivePart: (activePart) => set({ activePart }),
       setPlaybackTime: (playbackTime) => set({ playbackTime }),
@@ -400,7 +407,17 @@ robot.idle()`,
           });
         };
         const newRoot = updateInTree(state.project.root);
-        const file = state.project.root.find(f => f.type === 'file' && f.id === fileId);
+        const findFileRecursive = (items: ProjectItem[]): ProjectFile | null => {
+          for (const item of items) {
+            if (item.id === fileId && item.type === 'file') return item;
+            if (item.type === 'folder' && 'children' in item) {
+              const found = findFileRecursive(item.children);
+              if (found) return found;
+            }
+          }
+          return null;
+        };
+        const file = findFileRecursive(state.project.root);
         if (file && file.type === 'file') {
           set({ 
             project: { ...state.project, root: newRoot, updatedAt: Date.now() },
@@ -441,9 +458,15 @@ robot.idle()`,
           });
         };
         const newRoot = deleteInTree(state.project.root);
-        const activeFileId = state.project.activeFileId === itemId ? null : state.project.activeFileId;
+        const isDeletingActiveFile = state.project.activeFileId === itemId;
+        const activeFileId = isDeletingActiveFile ? null : state.project.activeFileId;
+        
+        // Clear code if deleting the active file
+        const newCode = isDeletingActiveFile ? '' : state.code;
+        
         set({ 
           project: { ...state.project, root: newRoot, activeFileId, updatedAt: Date.now() },
+          code: newCode,
           isProjectDirty: true
         });
       },
@@ -473,7 +496,13 @@ robot.idle()`,
       name: 'humanoid-storage',
       // SEC-02: Remote API Keys should never be serialized to basic localStorage. 
       // It should be fetched synchronously from the secured main-process DB/keychain at boot.
-      partialize: (state) => ({ customAnimations: state.customAnimations, code: state.code, aiProvider: state.aiProvider }),
+      partialize: (state) => ({ 
+        customAnimations: state.customAnimations, 
+        code: state.code, 
+        aiProvider: state.aiProvider,
+        project: state.project,
+        isProjectDirty: state.isProjectDirty
+      }),
       merge: (persistedState: any, currentState) => {
         const result = StorageSchema.safeParse(persistedState);
         if (!result.success) {

@@ -70,7 +70,7 @@ export function LeftPanel({ bot }: { bot: Humanoid | null }) {
           
           return (
             <div
-              key={i}
+              key={n.part}
               onClick={() => handleNodeClick(n)}
               className={`flex items-center py-1.5 px-2 text-[13px] cursor-pointer transition-colors duration-100 whitespace-nowrap gap-1.5 ${isActive ? 'bg-[#4d78cc] text-white' : 'text-[#abb2bf] hover:bg-[#2c313a] hover:text-white'}`}
               style={{ paddingLeft: `${indent + 8}px` }}

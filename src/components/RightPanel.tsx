@@ -210,7 +210,7 @@ export function RightPanel({ bot, onRun }: { bot: Humanoid | null, onRun: () => 
         />
       </div>
 
-      <AIGenerateModal onClose={() => setShowAIModal(false)} />
+      
     </div>
   );
 }

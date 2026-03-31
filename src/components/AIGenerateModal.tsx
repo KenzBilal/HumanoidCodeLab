@@ -39,11 +39,14 @@ Generate ONLY the script code. Do not include markdown formatting. Just the code
 export function AIGenerateModal({ onClose }: { onClose: () => void }) {
   const [prompt, setPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [abortController, setAbortController] = useState<AbortController | null>(null);
   const { setCode, addLog, geminiApiKey, aiProvider } = useStore();
 
   const handleGenerate = async () => {
     if (!prompt.trim() || !geminiApiKey) return;
 
+    const controller = new AbortController();
+    setAbortController(controller);
     setIsGenerating(true);
     addLog('INFO', `Generating script with ${aiProvider}...`);
 
@@ -69,10 +72,24 @@ export function AIGenerateModal({ onClose }: { onClose: () => void }) {
       addLog('SUCCESS', 'Script generated successfully.');
       onClose();
     } catch (error: any) {
-      addLog('ERROR', 'Failed to generate script: ' + error.message);
+      if (error.name === 'AbortError') {
+        addLog('INFO', 'Generation cancelled.');
+      } else {
+        addLog('ERROR', 'Failed to generate script: ' + error.message);
+      }
     } finally {
       setIsGenerating(false);
+      setAbortController(null);
     }
+  };
+
+  const handleCancel = () => {
+    if (abortController) {
+      abortController.abort();
+      addLog('INFO', 'Cancelling generation...');
+    }
+    setIsGenerating(false);
+    setAbortController(null);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -113,11 +130,10 @@ export function AIGenerateModal({ onClose }: { onClose: () => void }) {
         {/* Footer */}
         <div className="px-5 py-4 border-t border-[#181a1f] bg-[#21252b] flex justify-end gap-2">
           <button
-            onClick={onClose}
+            onClick={isGenerating ? handleCancel : onClose}
             className="px-4 py-2 rounded text-[13px] font-medium bg-[#3e4451] text-[#abb2bf] hover:text-white hover:bg-[#4c5363] transition-colors"
-            disabled={isGenerating}
           >
-            Cancel
+            {isGenerating ? 'Stop' : 'Cancel'}
           </button>
           <button
             onClick={handleGenerate}

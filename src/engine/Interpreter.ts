@@ -176,7 +176,10 @@ function evalTokens(tokens: Token[], vars: Vars): boolean {
     }
     if (t.kind === 'IDENT') {
       consume();
-      return t.value in vars ? vars[t.value] : t.value;
+      if (!(t.value in vars)) {
+        throw new Error(`Undefined variable: ${t.value}`);
+      }
+      return vars[t.value];
     }
     return 0;
   }
