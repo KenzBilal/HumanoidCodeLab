@@ -7,6 +7,22 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ---
 
+## [1.2.2] — 2026-03-31
+
+### 🚀 In-App Updates & UI Visual Polish
+
+This patch release introduces the long-awaited in-app update trigger and significant visual enhancements to the IDE's workspace management.
+
+#### Added
+- **Manual Update Trigger** — New "Update" button in the TopBar allows users to check for and initiate application updates directly within the IDE.
+- **Update Logic** — Integrated IPC handlers to communicate with the auto-update provider, streamlining the migration to newer builds.
+
+#### Changed
+- **Workspace Aesthetics** — Completely overhauled the panel resize handles (`react-resizable-panels`). Added smooth CSS transitions, a custom color palette (Purple-600), and dynamic glow effects on hover and active states for a more premium, interactive feel.
+- **Metadata Sync** — Synchronized application metadata across core configuration files to ensure consistent version reporting.
+
+---
+
 ## [1.2.0] — 2026-03-31
 
 ### 🚀 Major Feature Update & Proprietary Release
