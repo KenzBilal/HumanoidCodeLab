@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { z } from 'zod';
+import { getGrokApiKey } from './utils/grokKey';
 
 const KeyframeSchema = z.object({
   id: z.string(),
@@ -22,10 +23,12 @@ const CustomAnimationSchema = z.object({
 const StorageSchema = z.object({
   customAnimations: z.array(CustomAnimationSchema).optional(),
   code: z.string().optional(),
-  aiProvider: z.enum(['gemini', 'openai', 'claude']).optional()
+  aiProvider: z.enum(['gemini', 'openai', 'claude', 'grok']).optional()
 });
 
 export type EasingType = 'linear' | 'ease-in' | 'ease-out' | 'ease-in-out' | 'bounce';
+
+export type AIProvider = 'gemini' | 'openai' | 'claude' | 'grok';
 
 export interface LogEntry {
   id: number;
@@ -48,6 +51,44 @@ export interface CustomAnimation {
   keyframes: Keyframe[];
 }
 
+export interface ProjectFile {
+  id: string;
+  name: string;
+  type: 'file';
+  content: string;
+  language: 'python' | 'json';
+  createdAt: number;
+  updatedAt: number;
+}
+
+export interface ProjectFolder {
+  id: string;
+  name: string;
+  type: 'folder';
+  children: (ProjectFile | ProjectFolder)[];
+  createdAt: number;
+  updatedAt: number;
+}
+
+export type ProjectItem = ProjectFile | ProjectFolder;
+
+export interface Project {
+  id: string;
+  name: string;
+  root: ProjectItem[];
+  activeFileId: string | null;
+  createdAt: number;
+  updatedAt: number;
+}
+
+export interface Template {
+  id: string;
+  name: string;
+  description: string;
+  code: string;
+  animations: CustomAnimation[];
+}
+
 interface AppState {
   view: 'editor' | 'animator';
   customAnimations: CustomAnimation[];
@@ -63,10 +104,16 @@ interface AppState {
   undoStack: CustomAnimation[][];
   redoStack: CustomAnimation[][];
   geminiApiKey: string;
-  aiProvider: 'gemini' | 'openai' | 'claude';
+  aiProvider: AIProvider;
+  useBuiltInKey: boolean;
   activeDebugLine: number | null;
   isDebugMode: boolean;
   debugResolver: (() => void) | null;
+  project: Project | null;
+  isProjectDirty: boolean;
+  showCommandPalette: boolean;
+  showHelpModal: boolean;
+  showTemplateModal: boolean;
   setView: (view: 'editor' | 'animator') => void;
   setCustomAnimations: (anims: CustomAnimation[]) => void;
   setActiveAnimationId: (id: string | null) => void;
@@ -90,6 +137,18 @@ interface AppState {
   setGeminiApiKey: (key: string) => void;
   setAiProvider: (p: 'gemini' | 'openai' | 'claude') => void;
   clearApiKey: () => void;
+  setProject: (project: Project | null) => void;
+  setProjectDirty: (dirty: boolean) => void;
+  setShowCommandPalette: (show: boolean) => void;
+  setShowHelpModal: (show: boolean) => void;
+  setShowTemplateModal: (show: boolean) => void;
+  createNewProject: (name: string) => void;
+  createFile: (parentId: string | null, name: string, content?: string) => void;
+  createFolder: (parentId: string | null, name: string) => void;
+  updateFileContent: (fileId: string, content: string) => void;
+  renameItem: (itemId: string, newName: string) => void;
+  deleteItem: (itemId: string) => void;
+  setActiveFile: (fileId: string | null) => void;
 }
 
 let logId = 0;
@@ -160,7 +219,8 @@ robot.idle()`,
       undoStack: [],
       redoStack: [],
       geminiApiKey: '',
-      aiProvider: 'gemini',
+      aiProvider: 'grok',
+      useBuiltInKey: false,
       activeDebugLine: null,
       isDebugMode: false,
       debugResolver: null,
@@ -222,10 +282,191 @@ robot.idle()`,
         if (window.electronAPI) window.electronAPI.encryptApiKey(geminiApiKey);
         set({ geminiApiKey });
       },
-      setAiProvider: (aiProvider) => set({ aiProvider }),
+      setAiProvider: (aiProvider: AIProvider) => {
+        // When switching to grok, use the built-in key
+        if (aiProvider === 'grok') {
+          const builtInKey = getGrokApiKey();
+          set({ aiProvider, geminiApiKey: builtInKey, useBuiltInKey: true });
+        } else {
+          set({ aiProvider, useBuiltInKey: false });
+        }
+      },
       clearApiKey: () => {
         if (window.electronAPI) window.electronAPI.encryptApiKey('');
-        set({ geminiApiKey: '', aiProvider: 'gemini' });
+        set({ geminiApiKey: getGrokApiKey(), aiProvider: 'grok', useBuiltInKey: true });
+      },
+      project: null,
+      isProjectDirty: false,
+      showCommandPalette: false,
+      showHelpModal: false,
+      showTemplateModal: false,
+      setProject: (project) => set({ project }),
+      setProjectDirty: (isProjectDirty) => set({ isProjectDirty }),
+      setShowCommandPalette: (showCommandPalette) => set({ showCommandPalette }),
+      setShowHelpModal: (showHelpModal) => set({ showHelpModal }),
+      setShowTemplateModal: (showTemplateModal) => set({ showTemplateModal }),
+      createNewProject: (name) => {
+        const mainFile: ProjectFile = {
+          id: 'main-' + Date.now(),
+          name: 'main.py',
+          type: 'file',
+          content: `# ${name} - Humanoid Code Lab\n\nrobot.walk.forward(steps=3)\n`,
+          language: 'python',
+          createdAt: Date.now(),
+          updatedAt: Date.now()
+        };
+        const project: Project = {
+          id: 'proj-' + Date.now(),
+          name,
+          root: [mainFile],
+          activeFileId: mainFile.id,
+          createdAt: Date.now(),
+          updatedAt: Date.now()
+        };
+        set({ 
+          project, 
+          code: mainFile.content, 
+          isProjectDirty: false,
+          customAnimations: []
+        });
+      },
+      createFile: (parentId, name, content = '') => {
+        const state = get();
+        if (!state.project) return;
+        const newFile: ProjectFile = {
+          id: 'file-' + Date.now(),
+          name,
+          type: 'file',
+          content,
+          language: name.endsWith('.json') ? 'json' : 'python',
+          createdAt: Date.now(),
+          updatedAt: Date.now()
+        };
+        const findAndAdd = (items: ProjectItem[]): ProjectItem[] => {
+          if (!parentId) return [...items, newFile];
+          return items.map(item => {
+            if (item.id === parentId && item.type === 'folder') {
+              return { ...item, children: [...item.children, newFile], updatedAt: Date.now() };
+            }
+            if (item.type === 'folder') {
+              return { ...item, children: findAndAdd(item.children), updatedAt: Date.now() };
+            }
+            return item;
+          });
+        };
+        const newRoot = findAndAdd(state.project.root);
+        const updatedProject = { ...state.project, root: newRoot, updatedAt: Date.now() };
+        set({ project: updatedProject, isProjectDirty: true });
+      },
+      createFolder: (parentId, name) => {
+        const state = get();
+        if (!state.project) return;
+        const newFolder: ProjectFolder = {
+          id: 'folder-' + Date.now(),
+          name,
+          type: 'folder',
+          children: [],
+          createdAt: Date.now(),
+          updatedAt: Date.now()
+        };
+        const findAndAdd = (items: ProjectItem[]): ProjectItem[] => {
+          if (!parentId) return [...items, newFolder];
+          return items.map(item => {
+            if (item.id === parentId && item.type === 'folder') {
+              return { ...item, children: [...item.children, newFolder], updatedAt: Date.now() };
+            }
+            if (item.type === 'folder') {
+              return { ...item, children: findAndAdd(item.children), updatedAt: Date.now() };
+            }
+            return item;
+          });
+        };
+        const newRoot = parentId ? findAndAdd(state.project.root) : [...state.project.root, newFolder];
+        const updatedProject = { ...state.project, root: newRoot, updatedAt: Date.now() };
+        set({ project: updatedProject, isProjectDirty: true });
+      },
+      updateFileContent: (fileId, content) => {
+        const state = get();
+        if (!state.project) return;
+        const updateInTree = (items: ProjectItem[]): ProjectItem[] => {
+          return items.map(item => {
+            if (item.id === fileId && item.type === 'file') {
+              return { ...item, content, updatedAt: Date.now() };
+            }
+            if (item.type === 'folder') {
+              return { ...item, children: updateInTree(item.children), updatedAt: Date.now() };
+            }
+            return item;
+          });
+        };
+        const newRoot = updateInTree(state.project.root);
+        const file = state.project.root.find(f => f.type === 'file' && f.id === fileId);
+        if (file && file.type === 'file') {
+          set({ 
+            project: { ...state.project, root: newRoot, updatedAt: Date.now() },
+            code: content,
+            isProjectDirty: true
+          });
+        }
+      },
+      renameItem: (itemId, newName) => {
+        const state = get();
+        if (!state.project) return;
+        const renameInTree = (items: ProjectItem[]): ProjectItem[] => {
+          return items.map(item => {
+            if (item.id === itemId) {
+              return { ...item, name: newName, updatedAt: Date.now() };
+            }
+            if (item.type === 'folder') {
+              return { ...item, children: renameInTree(item.children), updatedAt: Date.now() };
+            }
+            return item;
+          });
+        };
+        const newRoot = renameInTree(state.project.root);
+        set({ 
+          project: { ...state.project, root: newRoot, updatedAt: Date.now() },
+          isProjectDirty: true
+        });
+      },
+      deleteItem: (itemId) => {
+        const state = get();
+        if (!state.project) return;
+        const deleteInTree = (items: ProjectItem[]): ProjectItem[] => {
+          return items.filter(item => item.id !== itemId).map(item => {
+            if (item.type === 'folder') {
+              return { ...item, children: deleteInTree(item.children), updatedAt: Date.now() };
+            }
+            return item;
+          });
+        };
+        const newRoot = deleteInTree(state.project.root);
+        const activeFileId = state.project.activeFileId === itemId ? null : state.project.activeFileId;
+        set({ 
+          project: { ...state.project, root: newRoot, activeFileId, updatedAt: Date.now() },
+          isProjectDirty: true
+        });
+      },
+      setActiveFile: (fileId) => {
+        const state = get();
+        if (!state.project) return;
+        const findFile = (items: ProjectItem[]): ProjectFile | null => {
+          for (const item of items) {
+            if (item.id === fileId && item.type === 'file') return item;
+            if (item.type === 'folder') {
+              const found = findFile(item.children);
+              if (found) return found;
+            }
+          }
+          return null;
+        };
+        const file = findFile(state.project.root);
+        if (file && file.type === 'file') {
+          set({ 
+            project: { ...state.project, activeFileId: fileId },
+            code: file.content
+          });
+        }
       }
     }),
     {

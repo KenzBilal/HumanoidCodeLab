@@ -41,8 +41,8 @@ export function OutputPanel() {
         {logs.length === 0 ? (
           <div className="text-[#5c6370] italic text-[13px]">No logs yet. Run the script to see output.</div>
         ) : (
-          logs.map((log, i) => (
-            <div key={i} className="mb-1.5 font-mono text-[12px] whitespace-pre-wrap leading-relaxed">
+          logs.map((log) => (
+            <div key={log.id} className="mb-1.5 font-mono text-[12px] whitespace-pre-wrap leading-relaxed">
               <span className={`inline-block w-[70px] ${getLogStyle(log.type).cls}`}>[{log.type}]</span>
               <span className="text-[#abb2bf]">{log.message}</span>
             </div>

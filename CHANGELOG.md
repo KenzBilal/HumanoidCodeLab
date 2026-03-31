@@ -7,11 +7,32 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ---
 
+## [1.2.0] — 2026-03-31
+
+### 🚀 Major Feature Update & Proprietary Release
+
+This major release introduces a complete UI overhaul and a suite of powerful new professional-grade features for 3D humanoid robot programming.
+
+#### Added
+- **Project Explorer** — New persistent file tree system supporting deep project, folder, and file management across sessions.
+- **Command Palette (`Ctrl+Shift+P`)** — Global quick-action search for all IDE features, running scripts, and navigating the app.
+- **Integrated Help Modal** — Native interactive tutorial system and comprehensive command documentation.
+- **Script Template Library** — Quick-start gallery for common robot routines (movement, dancing, exercise).
+- **AI Provider Support** — Expanded AI backend with improved settings and support for latest generation models.
+- **UI & Accessibility** — Overhauled iconography using Lucide-react and optimized the resizable pane layout for complex work.
+
+#### Changed
+- **License Update** — Transitioned the project to a **Proprietary** licensing model (All rights reserved).
+- **Enhanced Interpreter** — Significant performance improvements to the Python-to-AST compilation pipeline.
+
+---
+
 ## [1.1.0] — 2026-03-31
 
 ### 🚀 First Stable Production Release
 
 This release marks the first official stable version of Humanoid Code Lab, resolving critical issues from early internal builds and introducing a suite of powerful new features for robot programming and simulation.
+
 
 
 #### Added

@@ -687,11 +687,11 @@ export class Humanoid {
     });
   }
 
-  resetPose(animated = true): Promise<void> {
+  async resetPose(animated = true): Promise<void> {
     this.poseState = 'standing';
     this._locked.clear();
     this._weightShift.set(0, 0, 0);
-    Object.entries(this.parts).map(([name, part]) => {
+    const jointPromises = Object.entries(this.parts).map(([name, part]) => {
       const d = part.defaultRot;
       const dp = part.defaultPos;
       if (!animated && dp) {
@@ -701,6 +701,7 @@ export class Humanoid {
         ? this.animateJoint(name, { x: d.x, y: d.y, z: d.z }, 500)
         : (part.g.rotation.set(d.x, d.y, d.z), Promise.resolve());
     });
+    await Promise.all(jointPromises);
     const t0 = performance.now();
     const ms = 500;
     const sx = this.root.position.x, sz = this.root.position.z, sy = this.root.rotation.y;
@@ -844,63 +845,69 @@ export class Humanoid {
       ...sortedKfs
     ];
 
-    return new Promise<void>(res => {
-      const t0 = performance.now();
-      const tick = (now: number) => {
-        const t = Math.min((now - t0) / anim.duration, 1);
+    try {
+      return await new Promise<void>((res, rej) => {
+        const t0 = performance.now();
+        const tick = (now: number) => {
+          const t = Math.min((now - t0) / anim.duration, 1);
 
-        if (onProgress) onProgress(t);
+          if (onProgress) onProgress(t);
 
-        let kfIndex = 0;
-        while (kfIndex < fullKeyframes.length - 1 && fullKeyframes[kfIndex + 1].time <= t) {
-          kfIndex++;
-        }
-
-        const kf1 = fullKeyframes[kfIndex];
-        const kf2 = fullKeyframes[Math.min(kfIndex + 1, fullKeyframes.length - 1)];
-
-        let localT = 0;
-        if (kf2.time > kf1.time) {
-          localT = (t - kf1.time) / (kf2.time - kf1.time);
-        }
-
-        const easingFn = kf1.easing || 'linear';
-        const easedT = applyEasing(localT, easingFn);
-
-        animatedParts.forEach(partName => {
-          const r1 = kf1.rotations[partName] || startRots[partName] || { x: 0, y: 0, z: 0 };
-          const r2 = kf2.rotations[partName] || startRots[partName] || { x: 0, y: 0, z: 0 };
-
-          const x = r1.x + (r2.x - r1.x) * easedT;
-          const y = r1.y + (r2.y - r1.y) * easedT;
-          const z = r1.z + (r2.z - r1.z) * easedT;
-
-          if (partName === 'root') {
-            this.root.rotation.set(x, y, z);
-          } else if (this.parts[partName]) {
-            this.parts[partName].g.rotation.set(x, y, z);
+          let kfIndex = 0;
+          while (kfIndex < fullKeyframes.length - 1 && fullKeyframes[kfIndex + 1].time <= t) {
+            kfIndex++;
           }
-        });
 
-        const y1 = defaultY + kf1.rootOffset.y;
-        const y2 = defaultY + kf2.rootOffset.y;
-        this.root.position.y = y1 + (y2 - y1) * easedT;
+          const kf1 = fullKeyframes[kfIndex];
+          const kf2 = fullKeyframes[Math.min(kfIndex + 1, fullKeyframes.length - 1)];
 
-        this.clampToPlatform(this.root.position);
-        this.preventFloorClipping();
+          let localT = 0;
+          if (kf2.time > kf1.time) {
+            localT = (t - kf1.time) / (kf2.time - kf1.time);
+          }
 
-        this.camTarget.y = this.root.position.y + 2.0;
-        this.updateCam();
+          const easingFn = kf1.easing || 'linear';
+          const easedT = applyEasing(localT, easingFn);
 
-        if (t < 1) {
-          this._playbackRafId = requestAnimationFrame(tick);
-        } else {
-          this._playbackRafId = null;
-          res();
-        }
-      };
-      this._playbackRafId = requestAnimationFrame(tick);
-    });
+          animatedParts.forEach(partName => {
+            const r1 = kf1.rotations[partName] || startRots[partName] || { x: 0, y: 0, z: 0 };
+            const r2 = kf2.rotations[partName] || startRots[partName] || { x: 0, y: 0, z: 0 };
+
+            const x = r1.x + (r2.x - r1.x) * easedT;
+            const y = r1.y + (r2.y - r1.y) * easedT;
+            const z = r1.z + (r2.z - r1.z) * easedT;
+
+            if (partName === 'root') {
+              this.root.rotation.set(x, y, z);
+            } else if (this.parts[partName]) {
+              this.parts[partName].g.rotation.set(x, y, z);
+            }
+          });
+
+          const y1 = defaultY + (kf1.rootOffset?.y ?? 0);
+          const y2 = defaultY + (kf2.rootOffset?.y ?? 0);
+          this.root.position.y = y1 + (y2 - y1) * easedT;
+
+          this.clampToPlatform(this.root.position);
+          this.preventFloorClipping();
+
+          this.camTarget.y = this.root.position.y + 2.0;
+          this.updateCam();
+
+          if (t < 1) {
+            this._playbackRafId = requestAnimationFrame(tick);
+          } else {
+            this._playbackRafId = null;
+            res();
+          }
+        };
+        this._playbackRafId = requestAnimationFrame(tick);
+      });
+    } finally {
+      animatedParts.forEach(partName => {
+        this._locked.delete(partName);
+      });
+    }
   }
 
   updateIdle(dt: number) {

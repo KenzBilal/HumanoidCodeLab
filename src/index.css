@@ -1,1 +1,171 @@
 @import "tailwindcss";
+
+:root {
+  --bg-primary: #1a1d23;
+  --bg-secondary: #22262e;
+  --bg-tertiary: #2a2f38;
+  --bg-hover: #323843;
+  --text-primary: #e8eaed;
+  --text-secondary: #b8bcc4;
+  --text-muted: #7a8194;
+  --accent-primary: #8b5cf6;
+  --accent-secondary: #a78bfa;
+  --accent-glow: rgba(139, 92, 246, 0.3);
+  --success: #34d399;
+  --error: #f87171;
+  --warning: #fbbf24;
+  --info: #60a5fa;
+  --border: #3a3f4a;
+}
+
+/* Panel resize handle hover effects only - no layout overrides */
+[data-panel-resize-handle]:hover,
+[data-panel-resize-handle][data-resize-handle-active] {
+  background: #8b5cf6 !important;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #4a4f5a #1a1d23;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: #1a1d23;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: #4a4f5a;
+  border-radius: 4px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: #5a5f6a;
+}
+
+body {
+  background: var(--bg-primary);
+}
+
+.bg-\[\#282c34\] {
+  background: var(--bg-secondary) !important;
+}
+
+.bg-\[\#21252b\] {
+  background: var(--bg-primary) !important;
+}
+
+.bg-\[\#1e2227\] {
+  background: #15171c !important;
+}
+
+.bg-\[\#181a1f\] {
+  background: #0d0f12 !important;
+}
+
+.text-\[\#abb2bf\] {
+  color: var(--text-primary) !important;
+}
+
+.text-\[\#5c6370\] {
+  color: var(--text-muted) !important;
+}
+
+.border-\[\#181a1f\] {
+  border-color: var(--border) !important;
+}
+
+.border-\[\#3a3f4a\] {
+  border-color: var(--border) !important;
+}
+
+.hover\:bg-\[\#2c313a\]:hover {
+  background: var(--bg-hover) !important;
+}
+
+button {
+  transition: all 0.15s ease;
+}
+
+button:hover {
+  transform: translateY(-1px);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+input, select, textarea {
+  background: var(--bg-primary) !important;
+  border-color: var(--border) !important;
+  color: var(--text-primary) !important;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--accent-primary) !important;
+  box-shadow: 0 0 0 3px var(--accent-glow) !important;
+}
+
+.purple-500, .purple-600 {
+  --tw-bg-opacity: 1;
+  background: var(--accent-primary) !important;
+}
+
+.purple-600:hover {
+  background: var(--accent-secondary) !important;
+  box-shadow: 0 4px 20px var(--accent-glow);
+}
+
+.text-purple-400 {
+  color: var(--accent-secondary) !important;
+}
+
+.text-purple-500 {
+  color: var(--accent-primary) !important;
+}
+
+.animate-pulse {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 8px var(--accent-glow);
+  }
+  50% {
+    box-shadow: 0 0 20px var(--accent-glow), 0 0 30px var(--accent-glow);
+  }
+}
+
+.output-line {
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin: 2px 0;
+  transition: background 0.2s;
+}
+
+.output-line:hover {
+  background: rgba(139, 92, 246, 0.1);
+}
+
+.keyframe-track {
+  background: linear-gradient(90deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+  box-shadow: 0 0 10px var(--accent-glow);
+}
+
+.playhead {
+  background: #fbbf24;
+  box-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+}
+
+.monaco-editor .margin {
+  background: var(--bg-primary) !important;
+}
+
+.monaco-editor .monaco-editor-background {
+  background: var(--bg-primary) !important;
+}

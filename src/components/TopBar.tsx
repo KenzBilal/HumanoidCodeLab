@@ -112,6 +112,7 @@ export function TopBar({ bot, onRun }: { bot: Humanoid | null, onRun: () => void
   const handleStop = () => {
     Queue.stop();
     if (debugResolver) stepNext();
+    setRunning(false);
     setIsDebugMode(false);
   }
 

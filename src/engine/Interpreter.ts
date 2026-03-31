@@ -86,7 +86,8 @@ type TokenKind =
   | 'NUM' | 'STR' | 'BOOL' | 'IDENT'
   | 'EQ' | 'NEQ' | 'LTE' | 'GTE' | 'LT' | 'GT'
   | 'AND' | 'OR' | 'NOT'
-  | 'LPAREN' | 'RPAREN';
+  | 'LPAREN' | 'RPAREN'
+  | 'MINUS' | 'PLUS' | 'MULT' | 'DIV';
 
 interface Token { kind: TokenKind; value: any; }
 
@@ -100,7 +101,12 @@ function tokenize(expr: string): Token[] {
     if (expr[i] === '"' || expr[i] === "'") {
       const q = expr[i++];
       let s = '';
-      while (i < expr.length && expr[i] !== q) s += expr[i++];
+      while (i < expr.length && expr[i] !== q) {
+        if (expr[i] === '\\' && i + 1 < expr.length) {
+          s += expr[i++];
+        }
+        s += expr[i++];
+      }
       if (i < expr.length) i++;
       tokens.push({ kind: 'STR', value: s });
       continue;
@@ -115,10 +121,14 @@ function tokenize(expr: string): Token[] {
     if (expr[i] === '>') { tokens.push({ kind: 'GT',     value: '>' }); i++; continue; }
     if (expr[i] === '(') { tokens.push({ kind: 'LPAREN', value: '(' }); i++; continue; }
     if (expr[i] === ')') { tokens.push({ kind: 'RPAREN', value: ')' }); i++; continue; }
+    if (expr[i] === '+') { tokens.push({ kind: 'PLUS',   value: '+' }); i++; continue; }
+    if (expr[i] === '*') { tokens.push({ kind: 'MULT',   value: '*' }); i++; continue; }
+    if (expr[i] === '/') { tokens.push({ kind: 'DIV',    value: '/' }); i++; continue; }
 
     const prevKind = tokens.length > 0 ? tokens[tokens.length - 1].kind : null;
     const opKinds: (TokenKind | null)[] = [
       null, 'EQ', 'NEQ', 'LT', 'GT', 'LTE', 'GTE', 'AND', 'OR', 'NOT', 'LPAREN',
+      'PLUS', 'MINUS', 'MULT', 'DIV'
     ];
     const canBeNeg = expr[i] === '-' && opKinds.includes(prevKind);
     if (/\d/.test(expr[i]) || canBeNeg) {
@@ -127,6 +137,8 @@ function tokenize(expr: string): Token[] {
       while (i < expr.length && /[\d.]/.test(expr[i])) s += expr[i++];
       if (s !== '-') { tokens.push({ kind: 'NUM', value: parseFloat(s) }); continue; }
     }
+
+    if (expr[i] === '-') { tokens.push({ kind: 'MINUS', value: '-' }); i++; continue; }
 
     if (/[a-zA-Z_]/.test(expr[i])) {
       let s = '';
@@ -152,7 +164,7 @@ function evalTokens(tokens: Token[], vars: Vars): boolean {
 
   function parseAtom(): any {
     const t = peek();
-    if (!t) return false;
+    if (!t) return 0;
     if (t.kind === 'LPAREN') {
       consume();
       const val = parseOr();
@@ -166,16 +178,38 @@ function evalTokens(tokens: Token[], vars: Vars): boolean {
       consume();
       return t.value in vars ? vars[t.value] : t.value;
     }
-    return false;
+    return 0;
+  }
+
+  function parseArith(): any {
+    let left = parseAtom();
+    while (peek()?.kind === 'PLUS' || peek()?.kind === 'MINUS') {
+      const op = consume();
+      const right = parseAtom();
+      if (op.kind === 'PLUS') left = Number(left) + Number(right);
+      if (op.kind === 'MINUS') left = Number(left) - Number(right);
+    }
+    return left;
+  }
+
+  function parseTerm(): any {
+    let left = parseArith();
+    while (peek()?.kind === 'MULT' || peek()?.kind === 'DIV') {
+      const op = consume();
+      const right = parseArith();
+      if (op.kind === 'MULT') left = Number(left) * Number(right);
+      if (op.kind === 'DIV') left = Number(right) !== 0 ? Number(left) / Number(right) : 0;
+    }
+    return left;
   }
 
   function parseCompare(): any {
-    const left = parseAtom();
+    const left = parseTerm();
     const op   = peek();
     const CMP: TokenKind[] = ['EQ','NEQ','LT','GT','LTE','GTE'];
     if (!op || !CMP.includes(op.kind)) return left;
     consume();
-    const right = parseAtom();
+    const right = parseTerm();
     switch (op.kind) {
       case 'EQ':  return left == right;  // eslint-disable-line eqeqeq
       case 'NEQ': return left != right;  // eslint-disable-line eqeqeq

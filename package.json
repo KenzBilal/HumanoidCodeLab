@@ -1,13 +1,13 @@
 {
   "name": "humanoid-code-lab",
   "private": true,
-  "version": "1.1.0",
+  "version": "1.2.0",
   "type": "module",
   "main": "dist-electron/main.js",
   "author": "KenzBilal",
   "license": "Apache-2.0",
   "description": "Cross-platform Electron IDE for 3D humanoid robot programming — Monaco Editor, multi-provider AI, visual step debugger, and training curriculum.",
-  "homepage": "https://github.com/KenzBilal/HumanoidCodeLab",
+  "homepage": "https://humanoidcodelab.com",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/KenzBilal/HumanoidCodeLab.git"

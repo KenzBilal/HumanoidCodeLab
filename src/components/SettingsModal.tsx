@@ -5,6 +5,7 @@ const PROVIDER_NAMES: Record<string, string> = {
   gemini: 'Google Gemini',
   openai: 'OpenAI',
   claude: 'Anthropic Claude',
+  grok: 'xAI Grok',
 };
 
 export function SettingsModal({ onClose, onKeyChange }: { onClose: () => void; onKeyChange: () => void }) {

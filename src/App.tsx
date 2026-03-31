@@ -13,6 +13,10 @@ import { AnimatorLeftPanel } from './components/AnimatorLeftPanel';
 import { AnimatorRightPanel } from './components/AnimatorRightPanel';
 import { AnimatorTimelinePanel } from './components/AnimatorTimelinePanel';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { FileTreePanel } from './components/FileTreePanel';
+import { CommandPalette } from './components/CommandPalette';
+import { HelpModal } from './components/HelpModal';
+import { TemplateModal } from './components/TemplateModal';
 import { Humanoid } from './engine/Humanoid';
 import { useStore } from './store';
 import { CommandRegistry } from './engine/CommandRegistry';
@@ -23,7 +27,7 @@ import { Group as PanelGroup, Panel, Separator as PanelResizeHandle } from 'reac
 export default function App() {
   const [bot, setBot] = useState<Humanoid | null>(null);
   const { addLog, view, undo, redo, customAnimations, activeAnimationId, activeKeyframeId,
-    setCustomAnimations, setActiveKeyframeId, pushUndo, setRunning, code } = useStore();
+    setCustomAnimations, setActiveKeyframeId, pushUndo, setRunning, code, setShowCommandPalette, setShowHelpModal, setShowTemplateModal, project } = useStore();
 
   const handleRun = useCallback(() => {
     if (Queue.running) return;
@@ -95,6 +99,24 @@ export default function App() {
       if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
         e.preventDefault();
         if (view === 'editor') handleRun();
+        return;
+      }
+      // Command Palette
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'P') {
+        e.preventDefault();
+        setShowCommandPalette(true);
+        return;
+      }
+      // Help
+      if ((e.ctrlKey || e.metaKey) && e.key === 'F1') {
+        e.preventDefault();
+        setShowHelpModal(true);
+        return;
+      }
+      // Templates
+      if ((e.ctrlKey || e.metaKey) && e.key === 'T') {
+        e.preventDefault();
+        setShowTemplateModal(true);
         return;
       }
 
@@ -230,6 +252,9 @@ export default function App() {
             </PanelGroup>
           )}
         </div>
+        <CommandPalette />
+        <HelpModal />
+        <TemplateModal />
       </div>
     </ErrorBoundary>
   );

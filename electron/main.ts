@@ -8,6 +8,42 @@ import OpenAI from 'openai';
 let mainWindow: BrowserWindow | null = null;
 let encryptedApiKeyBuffer: Buffer | null = null; // Local memory cache for the keychain
 
+// Rate limiting for AI requests
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
+const MAX_REQUESTS_PER_MINUTE = 10;
+const MAX_TOKENS_PER_DAY = 100000;
+const dailyTokenUsage = { count: 0, resetDate: new Date().toDateString() };
+
+function checkRateLimit(provider: string): { allowed: boolean; remaining: number; resetIn: number } {
+  const now = Date.now();
+  const record = rateLimitMap.get(provider);
+  
+  if (!record || now > record.resetTime) {
+    rateLimitMap.set(provider, { count: 1, resetTime: now + RATE_LIMIT_WINDOW });
+    return { allowed: true, remaining: MAX_REQUESTS_PER_MINUTE - 1, resetIn: RATE_LIMIT_WINDOW };
+  }
+  
+  if (record.count >= MAX_REQUESTS_PER_MINUTE) {
+    return { allowed: false, remaining: 0, resetIn: record.resetTime - now };
+  }
+  
+  record.count++;
+  return { allowed: true, remaining: MAX_REQUESTS_PER_MINUTE - record.count, resetIn: record.resetTime - now };
+}
+
+function checkDailyLimit(): boolean {
+  const today = new Date().toDateString();
+  if (dailyTokenUsage.resetDate !== today) {
+    dailyTokenUsage.count = 0;
+    dailyTokenUsage.resetDate = today;
+  }
+  
+  // Approximate token usage (rough estimate based on requests)
+  dailyTokenUsage.count += 500;
+  return dailyTokenUsage.count <= MAX_TOKENS_PER_DAY;
+}
+
 const isPackaged = app.isPackaged;
 const DIST = isPackaged
   ? path.join(process.resourcesPath, 'app.asar', 'dist')
@@ -140,6 +176,17 @@ Generate ONLY the script code. Do not include markdown formatting. Just the code
 
 // ── IPC: AI Generate ────────────────────────────────────────
 ipcMain.handle('ai-generate', async (_event, prompt, apiKey, provider) => {
+  // Rate limiting check
+  const rateCheck = checkRateLimit(provider);
+  if (!rateCheck.allowed) {
+    return { error: `Rate limit exceeded. Please wait ${Math.ceil(rateCheck.resetIn / 1000)} seconds.` };
+  }
+  
+  // Daily limit check
+  if (!checkDailyLimit()) {
+    return { error: 'Daily API limit reached. Please try again tomorrow.' };
+  }
+  
   if (!apiKey) return { error: 'No API key provided. Please connect your AI provider.' };
   
   try {
@@ -168,6 +215,33 @@ ipcMain.handle('ai-generate', async (_event, prompt, apiKey, provider) => {
       });
       generatedCode = (msg.content[0] as any).text || '';
 
+    } else if (provider === 'grok') {
+      // Grok API - using xAI's API
+      const response = await fetch('https://api.x.ai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+          model: 'grok-beta',
+          messages: [
+            { role: 'system', content: SYSTEM_INSTRUCTION },
+            { role: 'user', content: prompt }
+          ],
+          temperature: 0.2,
+          max_tokens: 1000
+        })
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error?.message || 'Grok API error');
+      }
+      
+      const data = await response.json();
+      generatedCode = data.choices?.[0]?.message?.content || '';
+
     } else {
       // Default / Gemini
       const ai = new GoogleGenAI({ apiKey });
@@ -186,27 +260,6 @@ ipcMain.handle('ai-generate', async (_event, prompt, apiKey, provider) => {
   }
 });
 
-// ── IPC: Serial communication ────────────────────────────────
-let serialPortInstance: any = null;
-ipcMain.handle('serial-communicate', async (_event, command: string) => {
-  try {
-    const { SerialPort } = await import('serialport');
-    if (!serialPortInstance) {
-      const ports = await SerialPort.list();
-      if (ports.length > 0) {
-        serialPortInstance = new SerialPort({ path: ports[0].path, baudRate: 9600 });
-      } else {
-        return { success: false, error: 'No serial hardware connected' };
-      }
-    }
-    serialPortInstance.write(command + '\\n');
-    return { success: true };
-  } catch (err: any) {
-    console.error('Serial init error:', err);
-    return { success: false, error: err.message };
-  }
-});
-
 // ── IPC: Version ────────────────────────────────────────────
 ipcMain.handle('get-version', () => app.getVersion());
 
@@ -217,6 +270,13 @@ ipcMain.handle('check-for-update', async () => {
   try {
     const { autoUpdater } = await import('electron-updater');
     const updater = autoUpdater;
+
+    // Set GitHub feed URL for auto-updates
+    updater.setFeedURL({
+      owner: 'KenzBilal',
+      repo: 'HumanoidCodeLab',
+      provider: 'github'
+    });
 
     updater.on('checking-for-update', () => {
       mainWindow?.webContents.send('update-event', { type: 'checking' });

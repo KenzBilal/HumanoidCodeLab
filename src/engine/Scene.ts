@@ -14,6 +14,14 @@ export class SceneManager {
   ly = 0;
   last = performance.now();
   animationId: number | null = null;
+  private _onMouseUp = () => { this.drag = false; };
+  private _onMouseMove = (e: MouseEvent) => {
+    if (!this.drag) return;
+    this.orbit.th -= (e.clientX - this.lx) * 0.007;
+    this.orbit.ph = Math.max(0.14, Math.min(Math.PI / 2.1, this.orbit.ph + (e.clientY - this.ly) * 0.007));
+    this.lx = e.clientX; this.ly = e.clientY;
+    this.updateCam();
+  };
 
   constructor(canvas: HTMLCanvasElement) {
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
@@ -82,14 +90,8 @@ export class SceneManager {
 
   setupEvents(canvas: HTMLCanvasElement) {
     canvas.addEventListener('mousedown', e => { this.drag = true; this.lx = e.clientX; this.ly = e.clientY; });
-    window.addEventListener('mouseup', () => this.drag = false);
-    window.addEventListener('mousemove', e => {
-      if (!this.drag) return;
-      this.orbit.th -= (e.clientX - this.lx) * 0.007;
-      this.orbit.ph = Math.max(0.14, Math.min(Math.PI / 2.1, this.orbit.ph + (e.clientY - this.ly) * 0.007));
-      this.lx = e.clientX; this.ly = e.clientY;
-      this.updateCam();
-    });
+    window.addEventListener('mouseup', this._onMouseUp);
+    window.addEventListener('mousemove', this._onMouseMove);
     canvas.addEventListener('wheel', e => {
       e.preventDefault();
       this.orbit.r = Math.max(3, Math.min(18, this.orbit.r + e.deltaY * 0.011));
@@ -119,6 +121,9 @@ export class SceneManager {
 
   dispose() {
     if (this.animationId) cancelAnimationFrame(this.animationId);
+    
+    window.removeEventListener('mouseup', this._onMouseUp);
+    window.removeEventListener('mousemove', this._onMouseMove);
     
     this.scene.traverse((node: any) => {
       if (node.isMesh) {

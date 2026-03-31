@@ -3,7 +3,10 @@ import { GoogleGenAI } from '@google/genai';
 import { useStore } from '../store';
 
 const PROVIDERS = [
-  { id: 'gemini', name: 'Google Gemini', getUrl: 'https://aistudio.google.com/apikey' },
+  { id: 'gemini', name: 'Google Gemini', getUrl: 'https://aistudio.google.com/apikey', color: '#4285f4', model: 'gemini-2.0-flash-exp' },
+  { id: 'openai', name: 'OpenAI GPT-4o', getUrl: 'https://platform.openai.com/api-keys', color: '#10a37f', model: 'gpt-4o' },
+  { id: 'claude', name: 'Anthropic Claude', getUrl: 'https://console.anthropic.com/keys', color: '#d97757', model: 'claude-3-7-sonnet-20250219' },
+  { id: 'grok', name: 'xAI Grok', getUrl: 'https://console.x.ai', color: '#000000', model: 'grok-beta' },
 ] as const;
 
 export function AIConnectModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: () => void }) {

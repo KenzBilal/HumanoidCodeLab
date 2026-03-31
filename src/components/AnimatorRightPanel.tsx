@@ -194,7 +194,6 @@ export function AnimatorRightPanel({ bot }: { bot: Humanoid | null }) {
 
   const handleResetPartRotation = () => {
     if (!activePart || !activeKf) return;
-    pushUndo();
     const newRots = { ...activeKf.rotations };
     delete newRots[activePart];
     updateKeyframe({ rotations: newRots });

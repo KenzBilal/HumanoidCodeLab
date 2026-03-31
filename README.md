@@ -1,181 +1,193 @@
 # Humanoid Code Lab
 
-A professional, cross-platform Electron application for 3D humanoid robot programming. Write Python-like scripts to control an animated 3D humanoid model in real-time, create custom keyframe animations, learn through an interactive curriculum, and generate complex routines using multi-provider AI backend (Google Gemini, OpenAI, Anthropic Claude).
+A desktop application for programming and animating 3D humanoid robots. Write code to control the robot, create custom animations, and generate routines using AI.
 
-> [!NOTE]
-> This repository represents the **V1.1.0 Production Release**, featuring secure keychain storage, automated unit testing, embedded Monaco IDE, and a fully draggable workspace.
+## What Is This?
 
-## Features
+Humanoid Code Lab is a desktop IDE that lets you:
+- **Program a 3D Robot** - Write scripts to make the robot walk, jump, turn, wave, and more
+- **Create Animations** - Use the visual keyframe animator to create custom animations
+- **Generate Code with AI** - Describe what you want in plain English, and AI generates the code
+- **Learn Robotics** - Follow the built-in training curriculum to learn robot programming
 
-- **Real-time 3D Humanoid** — Fully articulated robot with 18 controllable joints, built with Three.js.
-- **Custom Scripting DSL** — Python-like syntax to control the robot (e.g., `robot.walk.forward(steps=3)`). Features multi-level `if/elif/else` branching, `#` comments, inline variables, and scoped loops.
-- **Monaco Editor Integration** — World-class IDE experience with live Auto-Complete (`robot.*` IntelliSense syntax highlighting).
-- **Visual Stepping Debugger** — Execute lines step-by-step. The live debugger highlights the exact executing line synced with the robot's physical sequence logic.
-- **Interactive Training Curriculum** — Gamified UI puzzles evaluating user scripts against target logic AST conditions.
-- **Multi-Provider AI** — Generate scripts with natural language using OpenAI GPT-4o, Anthropic Claude 3.7, and Google Gemini 2.0 Flash.
-- **Secure Keychains (`safeStorage`)** — AI provider keys are encrypted natively via the OS keychain in the Electron Main Process. No plain text `localStorage` leaks.
-- **Visual Animation Editor** — Create keyframe-based animations with per-joint rotation control and timeline.
-- **Dynamic Layout** — Fully draggable, resizable split-panes managing the Viewport, Code Editor, and the Animation Sequencer interfaces.
-
-## Tech Stack
-
-- **Frontend:** React 19 + TypeScript 5.8
-- **Platform:** Electron (Node backend, Chromium frontend)
-- **Editor:** `@monaco-editor/react`
-- **3D Engine:** Three.js
-- **State:** Zustand with Zod schema validation
-- **Styling:** Tailwind CSS v4, Lucide React
-- **Layout:** `react-resizable-panels`
-- **Testing:** Vitest
-- **AI SDKs:** `@google/genai`, `openai`, `@anthropic-ai/sdk`
-- **Build:** Vite 6 + Electron Builder
-
-## Setup
-
-### Prerequisites
-
-- Node.js 18+
-
-### Installation
+## Installation
 
 ```bash
 npm install
+npm run dev        # Run in development mode
+npm run build      # Build for production
 ```
 
-### Development
+## Getting Started
 
-Run the Vite dev server and boot the application inside Electron:
+### First Launch
+1. Open the app
+2. Connect an AI provider (optional - app works fully offline without AI)
+3. Start writing code in the editor or create animations in Animator mode
 
-```bash
-npm run dev
-```
+### Interface Overview
 
-### Production Build
+The app has two main modes:
 
-Package the application as a standalone desktop executable for your OS:
+**Editor Mode** - Write and run robot code
+- Left Panel: Body parts tree
+- Center: 3D Viewport + Output console  
+- Right Panel: Code editor
 
-```bash
-npm run build
-```
+**Animator Mode** - Create keyframe animations
+- Left Panel: Animation list
+- Center: 3D Viewport + Timeline
+- Right Panel: Keyframe editor
 
-This compiles the Vite web payload (`dist/`) and the Node.js backend (`dist-electron/`).
+### Keyboard Shortcuts
 
-### Verification & Testing
+| Shortcut | Action |
+|----------|--------|
+| `Ctrl + Enter` | Run code |
+| `Ctrl + S` | Save file |
+| `Ctrl + Z` | Undo |
+| `Ctrl + Shift + Z` | Redo |
+| `Ctrl + Shift + P` | Command Palette |
+| `Ctrl + D` | Duplicate keyframe (Animator) |
+| `Delete` | Delete keyframe (Animator) |
+| `Space` | Play/Pause animation |
+| `Home` | Jump to start |
+| `End` | Jump to end |
 
-Verify DSL compilation and script variables logic via Vitest:
+## Writing Code
 
-```bash
-npm test
-```
-
-Perform static analysis and code linters:
-
-```bash
-npm run lint
-```
-
-## Scripting DSL
-
-The robot is controlled via a Python-like scripting language.
-
-### Syntax
+The robot is controlled using simple Python-like commands:
 
 ```python
-# Movement commands pass kwargs
-robot.command(param=value)
-robot.subsystem.command(param=value)
+# Make the robot walk forward
+robot.walk.forward(steps=3)
 
-# Complex Logic and Variables
-steps = 3
-if steps > 2:
-    robot.walk.forward(steps=steps)
-elif steps == 2:
-    robot.crouch()
-else:
-    robot.stand_up()
+# Turn left
+robot.turn.left(angle=90)
 
-# Iteration
-for x in range(3):
-    robot.head.nod(times=1)
+# Wave hello
+robot.right_hand.wave(times=3)
+
+# Use variables
+steps = 5
+for i in range(steps):
+    robot.walk.forward(steps=1)
     robot.wait(seconds=0.5)
+
+# Conditional logic
+if steps > 3:
+    robot.jump(height=1.0)
+else:
+    robot.crouch()
 ```
 
-## Available Commands
+### Available Commands
 
-### Head
-| Command | Parameters | Description |
-|---------|-----------|-------------|
-| `robot.head.look_left()` | — | Turn head left |
-| `robot.head.look_right()` | — | Turn head right |
-| `robot.head.center()` | — | Center head position |
-| `robot.head.nod()` | `times` (int, default: 2) | Nod head |
-| `robot.head.tilt()` | `angle` (number, default: 15) | Tilt head sideways (degrees) |
+#### Movement
+| Command | Description |
+|---------|-------------|
+| `robot.walk.forward(steps=N)` | Walk forward N steps |
+| `robot.walk.backward(steps=N)` | Walk backward N steps |
+| `robot.turn.left(angle=N)` | Turn left N degrees |
+| `robot.turn.right(angle=N)` | Turn right N degrees |
+| `robot.jump(height=N)` | Jump N units high |
+| `robot.crouch()` | Crouch down |
+| `robot.lay_down()` | Lay down |
+| `robot.stand_up()` | Stand up |
+| `robot.stand_on_one_leg(leg='left')` | Stand on one leg |
 
-### Arms & Hands
-| Command | Parameters | Description |
-|---------|-----------|-------------|
-| `robot.left_hand.raise()` | — | Raise left hand |
-| `robot.left_hand.lower()` | — | Lower left hand |
-| `robot.left_hand.wave()` | `times` (int, default: 3) | Wave left hand |
-| `robot.right_hand.raise()` | — | Raise right hand |
-| `robot.right_hand.lower()` | — | Lower right hand |
-| `robot.right_hand.wave()` | `times` (int, default: 3) | Wave right hand |
-| `robot.left_arm.elbow.bend()` | `angle` (number, default: 45) | Bend left elbow (degrees) |
-| `robot.right_arm.elbow.bend()` | `angle` (number, default: 45) | Bend right elbow (degrees) |
-| `robot.left_arm.shoulder.raise()` | `angle` (number, default: 90) | Raise left shoulder (degrees) |
-| `robot.right_arm.shoulder.raise()` | `angle` (number, default: 90) | Raise right shoulder (degrees) |
+#### Head
+| Command | Description |
+|---------|-------------|
+| `robot.head.look_left()` | Look left |
+| `robot.head.look_right()` | Look right |
+| `robot.head.center()` | Center head |
+| `robot.head.nod(times=N)` | Nod N times |
+| `robot.head.tilt(angle=N)` | Tilt head N degrees |
 
-### Body & Movement
-| Command | Parameters | Description |
-|---------|-----------|-------------|
-| `robot.walk.forward()` | `steps` (int, default: 3) | Walk forward N steps |
-| `robot.walk.backward()` | `steps` (int, default: 2) | Walk backward N steps |
-| `robot.jump()` | `height` (number, default: 1.0) | Jump vertically |
-| `robot.turn.left()` | `angle` (number, default: 90) | Turn left (degrees) |
-| `robot.turn.right()` | `angle` (number, default: 90) | Turn right (degrees) |
-| `robot.crouch()` | — | Crouch down |
-| `robot.lay_down()` | — | Lay down on the ground |
-| `robot.stand_on_one_leg()` | `leg` ('left'/'right', default: 'left') | Stand on one leg |
-| `robot.stand_up()` | — | Stand up from any pose |
-| `robot.reset()` | — | Reset to default pose |
-| `robot.idle()` | — | Return to idle pose |
-| `robot.wait()` | `seconds` (number, default: 1) | Wait N seconds |
+#### Arms & Hands
+| Command | Description |
+|---------|-------------|
+| `robot.left_hand.raise()` | Raise left hand |
+| `robot.left_hand.lower()` | Lower left hand |
+| `robot.left_hand.wave(times=N)` | Wave left hand N times |
+| `robot.right_hand.raise()` | Raise right hand |
+| `robot.right_hand.lower()` | Lower right hand |
+| `robot.right_hand.wave(times=N)` | Wave right hand N times |
+| `robot.right_arm.elbow.bend(angle=N)` | Bend right elbow N degrees |
+| `robot.left_arm.elbow.bend(angle=N)` | Bend left elbow N degrees |
+| `robot.right_arm.shoulder.raise(angle=N)` | Raise right shoulder |
+| `robot.left_arm.shoulder.raise(angle=N)` | Raise left shoulder |
+| `robot.torso.chest.rotate(angle=N)` | Rotate torso |
 
-## Architecture
+#### Other
+| Command | Description |
+|---------|-------------|
+| `robot.wait(seconds=N)` | Wait N seconds |
+| `robot.reset()` | Reset to default pose |
+| `robot.idle()` | Go to idle pose |
+| `robot.play(animation='name')` | Play a saved animation |
 
-```
-HumanoidCodeLab/
-├── package.json                # Dependencies and scripts (vitest, react, electron)
-├── electron/
-│   ├── main.ts                 # Electron backend: safeStorage keyring, AI processing, Hardware Serial
-│   └── preload.ts              # IPC Bridge
-├── tests/
-│   └── Interpreter.test.ts     # Core vitest logic validations (AST grammar checks)
-└── src/
-    ├── App.tsx                 # Root component with react-resizable-panels layout
-    ├── store.ts                # Zustand state (debug execution contexts, Zod hydration)
-    ├── engine/
-    │   ├── Humanoid.ts         # 3D humanoid model and animation IK logic
-    │   ├── Scene.ts            # Three.js scene, camera, lighting, render loop
-    │   ├── CommandRegistry.ts  # Hardcoded command schemas
-    │   ├── Interpreter.ts      # Python-to-AST logic parser
-    │   └── Queue.ts            # Action orchestrator with live debug stepping
-    └── components/
-        ├── Viewport.tsx        # Three.js canvas
-        ├── RightPanel.tsx      # Monaco Text Editor integration
-        ├── TopBar.tsx          # Nav with AI, Hardware reset, Curriculum triggers
-        ├── ErrorBoundary.tsx   # React error boundary
-        └── CurriculumModal.tsx # Gamified training module
-```
+## Using AI
 
+### Supported AI Providers
+- **Google Gemini** - Default, free tier available
+- **OpenAI GPT-4o** - Requires API key
+- **Anthropic Claude** - Requires API key  
+- **xAI Grok** - Requires API key
 
-## Website & SEO Status
+### Connecting AI
+1. Click the 🔒 icon in the top bar
+2. Select your provider
+3. Enter your API key
+4. Click Connect
 
-The official landing page for **Humanoid Code Lab** is fully optimized for production:
-- **SEO Ready**: Comprehensive meta tags, OpenGraph, and Twitter Cards are implemented in the `website/index.html`.
-- **Direct Downloads**: The [Download Page](file:///home/kenz/Desktop/HumanoidCodeLab/website/src/pages/Download.tsx) is configured with direct links to **v1.1.0** release assets (.AppImage, .exe, .dmg).
-- **3D Visualization**: The landing page features a real-time `Three.js` scene with the [robot.glb](file:///home/kenz/Desktop/HumanoidCodeLab/website/public/models/robot.glb) model.
+The app works fully offline - AI is optional.
+
+### Generating Code
+1. Click the ✨ button or press Ctrl+Enter after connecting AI
+2. Describe what you want in plain English
+3. Generated code appears in the editor
+
+## Creating Animations
+
+### Using the Animator
+1. Switch to "Animator" mode via the top tabs
+2. Click "+ NEW" to create an animation
+3. Add keyframes and adjust poses
+4. Use the timeline to set timing
+5. Click Preview to test
+
+### Controls
+- **Add Keyframe** - Click when robot is at desired pose
+- **Drag Keyframes** - Move along timeline
+- **Easing** - Choose from linear, ease-in, ease-out, bounce
+- **Copy/Paste Poses** - Copy pose from one keyframe to another
+
+### Exporting Animations
+Click Export to save as JSON file.
+
+## Templates
+
+Start quickly with pre-made templates:
+- Basic Movement
+- Dance Routine
+- Exercise Session
+- Custom Routine
+
+## Help & Support
+
+- **Tutorial**: Click the graduation cap icon for training exercises
+- **Command Palette**: Press Ctrl+Shift+P for quick actions
+- **Settings**: Click gear icon for AI settings and preferences
+
+---
+
+## System Requirements
+- Windows 10+ / macOS / Linux
+- 4GB RAM minimum
+- WebGL-capable graphics
 
 ## License
 
-Apache-2.0
+Proprietary - All rights reserved.
