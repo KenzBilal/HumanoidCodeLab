@@ -18,10 +18,20 @@
   --border: #3a3f4a;
 }
 
-/* Panel resize handle hover effects only - no layout overrides */
-[data-panel-resize-handle]:hover,
+/* Panel resize handle styling */
+[data-panel-resize-handle] {
+  background: #181a1f;
+  transition: all 0.15s ease;
+}
+
+[data-panel-resize-handle]:hover {
+  background: #8b5cf6;
+  box-shadow: 0 0 12px rgba(139, 92, 246, 0.5);
+}
+
 [data-panel-resize-handle][data-resize-handle-active] {
-  background: #8b5cf6 !important;
+  background: #a78bfa;
+  box-shadow: 0 0 16px rgba(139, 92, 246, 0.7);
 }
 
 * {

@@ -216,44 +216,57 @@ export default function App() {
         <TopBar bot={bot} onRun={handleRun} />
         <div className="flex-1 flex overflow-hidden">
           {view === 'editor' ? (
-            <PanelGroup orientation="horizontal">
-              <Panel defaultSize={20} minSize={15} maxSize={30}>
-                <LeftPanel bot={bot} />
+            <PanelGroup orientation="horizontal" autoSave="hcl-layout">
+              {/* Left Panel - File Tree */}
+              <Panel defaultSize={15} minSize={10} maxSize={20}>
+                <FileTreePanel />
               </Panel>
               
-              <PanelResizeHandle className="w-1 bg-[#181a1f] hover:bg-purple-600/50 active:bg-purple-600 transition-colors cursor-col-resize z-10" />
+              <PanelResizeHandle className="w-1.5 bg-[#181a1f] hover:bg-purple-500 active:bg-purple-400 transition-all cursor-col-resize z-10" />
               
-              <Panel defaultSize={50} minSize={30}>
-                <div className="flex-1 flex flex-col relative h-full">
+              {/* Center Section - Viewport + Output */}
+              <PanelGroup orientation="vertical" id="center-section">
+                <Panel defaultSize={65} minSize={50} maxSize={80}>
                   <Viewport onBotReady={setBot} />
+                </Panel>
+                
+                <PanelResizeHandle className="h-1.5 bg-[#181a1f] hover:bg-purple-500 active:bg-purple-400 transition-all cursor-row-resize z-10" />
+                
+                <Panel defaultSize={35} minSize={20} maxSize={50}>
                   <OutputPanel />
-                </div>
-              </Panel>
+                </Panel>
+              </PanelGroup>
               
-              <PanelResizeHandle className="w-1 bg-[#181a1f] hover:bg-purple-600/50 active:bg-purple-600 transition-colors cursor-col-resize z-10" />
+              <PanelResizeHandle className="w-1.5 bg-[#181a1f] hover:bg-purple-500 active:bg-purple-400 transition-all cursor-col-resize z-10" />
               
-              <Panel defaultSize={30} minSize={20} maxSize={50}>
+              {/* Right Panel - Code Editor */}
+              <Panel defaultSize={25} minSize={20} maxSize={35}>
                 <RightPanel bot={bot} onRun={handleRun} />
               </Panel>
             </PanelGroup>
           ) : (
-            <PanelGroup orientation="horizontal">
-              <Panel defaultSize={20} minSize={15} maxSize={30}>
+            <PanelGroup orientation="horizontal" autoSave="hcl-animator-layout">
+              <Panel defaultSize={15} minSize={10} maxSize={20}>
                 <AnimatorLeftPanel />
               </Panel>
               
-              <PanelResizeHandle className="w-1 bg-[#181a1f] hover:bg-purple-600/50 active:bg-purple-600 transition-colors cursor-col-resize z-10" />
+              <PanelResizeHandle className="w-1.5 bg-[#181a1f] hover:bg-purple-500 active:bg-purple-400 transition-all cursor-col-resize z-10" />
               
-              <Panel defaultSize={50} minSize={30}>
-                <div className="flex-1 flex flex-col relative h-full">
+              <PanelGroup orientation="vertical">
+                <Panel defaultSize={70} minSize={50} maxSize={85}>
                   <Viewport onBotReady={setBot} />
+                </Panel>
+                
+                <PanelResizeHandle className="h-1.5 bg-[#181a1f] hover:bg-purple-500 active:bg-purple-400 transition-all cursor-row-resize z-10" />
+                
+                <Panel defaultSize={30} minSize={15} maxSize={50}>
                   <AnimatorTimelinePanel bot={bot} />
-                </div>
-              </Panel>
+                </Panel>
+              </PanelGroup>
 
-              <PanelResizeHandle className="w-1 bg-[#181a1f] hover:bg-purple-600/50 active:bg-purple-600 transition-colors cursor-col-resize z-10" />
+              <PanelResizeHandle className="w-1.5 bg-[#181a1f] hover:bg-purple-500 active:bg-purple-400 transition-all cursor-col-resize z-10" />
               
-              <Panel defaultSize={30} minSize={20} maxSize={50}>
+              <Panel defaultSize={25} minSize={20} maxSize={35}>
                 <AnimatorRightPanel bot={bot} />
               </Panel>
             </PanelGroup>

@@ -101,12 +101,12 @@ export function TopBar({ bot, onRun }: { bot: Humanoid | null, onRun: () => void
     onRun();
   };
 
-  const handleReset = async () => {
+const handleReset = async () => {
     if (!bot) return;
     Queue.stop();
     if (debugResolver) stepNext(); // force resolve to finish
     await new Promise(r => setTimeout(r, 80));
-    addLog('INFO', 'Resetting humanoid\u2026');
+    addLog('INFO', 'Resetting humanoid…');
     await bot.resetPose(true);
     addLog('SUCCESS', 'Reset complete.');
     setRunning(false);
@@ -225,6 +225,14 @@ export function TopBar({ bot, onRun }: { bot: Humanoid | null, onRun: () => void
             className="flex items-center gap-1.5 px-3 py-1 rounded text-[12px] font-semibold transition-colors duration-120 border bg-[#2b2f36] border-[#181a1f] text-white hover:bg-[#333842] cursor-pointer"
           >
             ↺ Reset
+          </button>
+
+          <button
+            onClick={handleCheckUpdate}
+            className="flex items-center gap-1.5 px-3 py-1 rounded text-[12px] font-semibold transition-colors duration-120 border bg-[#2b2f36] border-[#181a1f] text-white hover:bg-[#333842] cursor-pointer"
+            title="Check for Updates"
+          >
+            ⬆ Update
           </button>
 
           <button
