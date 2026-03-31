@@ -3,7 +3,7 @@
 A professional, cross-platform Electron application for 3D humanoid robot programming. Write Python-like scripts to control an animated 3D humanoid model in real-time, create custom keyframe animations, learn through an interactive curriculum, and generate complex routines using multi-provider AI backend (Google Gemini, OpenAI, Anthropic Claude).
 
 > [!NOTE]
-> This repository represents the **V1.0 Production Release**, featuring secure keychain storage, automated unit testing, embedded Monaco IDE, and a fully draggable workspace.
+> This repository represents the **V1.1.0 Production Release**, featuring secure keychain storage, automated unit testing, embedded Monaco IDE, and a fully draggable workspace.
 
 ## Features
 
@@ -173,7 +173,7 @@ HumanoidCodeLab/
 
 The official landing page for **Humanoid Code Lab** is fully optimized for production:
 - **SEO Ready**: Comprehensive meta tags, OpenGraph, and Twitter Cards are implemented in the `website/index.html`.
-- **Direct Downloads**: The [Download Page](file:///home/kenz/Desktop/HumanoidCodeLab/website/src/pages/Download.tsx) is configured with direct links to **v1.0.0** release assets (.AppImage, .exe, .dmg).
+- **Direct Downloads**: The [Download Page](file:///home/kenz/Desktop/HumanoidCodeLab/website/src/pages/Download.tsx) is configured with direct links to **v1.1.0** release assets (.AppImage, .exe, .dmg).
 - **3D Visualization**: The landing page features a real-time `Three.js` scene with the [robot.glb](file:///home/kenz/Desktop/HumanoidCodeLab/website/public/models/robot.glb) model.
 
 ## License

@@ -7,9 +7,12 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ---
 
-## [1.0.0] — 2026-03-29
+## [1.1.0] — 2026-03-31
 
-### 🚀 Production Release
+### 🚀 First Stable Production Release
+
+This release marks the first official stable version of Humanoid Code Lab, resolving critical issues from early internal builds and introducing a suite of powerful new features for robot programming and simulation.
+
 
 #### Added
 - **Monaco Editor** — Replaced the textarea code editor with Microsoft's Monaco Editor (the engine behind VS Code). Includes custom `robot.*` DSL IntelliSense auto-complete and keyword syntax highlighting.
