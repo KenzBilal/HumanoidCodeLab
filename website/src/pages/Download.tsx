@@ -27,7 +27,7 @@ const Download: React.FC = () => {
               os="Linux" 
               format=".AppImage" 
               recommended={true}
-              url="https://github.com/KenzBilal/HumanoidCodeLab/releases/download/v1.2.0/Humanoid-Code-Lab-1.2.0.AppImage"
+              url="https://github.com/KenzBilal/HumanoidCodeLab/releases/download/v1.2.1/Humanoid-Code-Lab-1.2.1.AppImage"
               icon={<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 12c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5Z"/><path d="M12 21c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5Z"/><path d="M5 12h14"/></svg>}
             />
           </ScrollReveal>
@@ -36,7 +36,7 @@ const Download: React.FC = () => {
             <DownloadCard 
               os="Windows" 
               format=".exe" 
-              url="https://github.com/KenzBilal/HumanoidCodeLab/releases/download/v1.2.0/Humanoid-Code-Lab-Setup-1.2.0.exe"
+              url="https://github.com/KenzBilal/HumanoidCodeLab/releases/download/v1.2.1/Humanoid-Code-Lab-Setup-1.2.1.exe"
               icon={<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 2v20l17-3V5Z"/><path d="M12 5v14"/><path d="M4 12h17"/></svg>}
             />
           </ScrollReveal>
@@ -45,7 +45,7 @@ const Download: React.FC = () => {
             <DownloadCard 
               os="macOS" 
               format=".dmg" 
-              url="https://github.com/KenzBilal/HumanoidCodeLab/releases/download/v1.2.0/Humanoid-Code-Lab-1.2.0.dmg"
+              url="https://github.com/KenzBilal/HumanoidCodeLab/releases/download/v1.2.1/Humanoid-Code-Lab-1.2.1.dmg"
               icon={<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20.94c1.97 0 3.06-1.26 3.06-2.46 0-1.51-1.12-2.12-2.31-2.12-.22 0-.44.02-.65.06l-.16.03V12.1c.26.06.52.09.79.09.43 0 .84-.08 1.21-.24.37-.16.7-.39.97-.68.27-.29.48-.64.62-1.03.14-.39.21-.81.21-1.25 0-.43-.07-.85-.21-1.24a3.13 3.13 0 0 0-.62-1.02 3.1 3.1 0 0 0-.97-.68A3.3 3.3 0 0 0 13.04 6c-.27 0-.53.03-.79.09v-4.3c.21.04.43.06.65.06 1.19 0 2.31-.61 2.31-2.12C15.21-1.46 14.12-2.72 12.15-2.72c-1.97 0-3.06 1.26-3.06 2.46 0 1.51 1.12 2.12 2.31 2.12.22 0 .44-.02.65-.06l.16-.03v4.35c-.26-.06-.52-.09-.79-.09-.43 0-.84.08-1.21.24s-.7.39-.97.68-.48.64-.62 1.03c-.14.39-.21.81-.21 1.25 0 .43.07.85.21 1.24s.35.7.62 1.02.6.52.97.68c.37.16.78.24 1.21.24.27 0 .53-.03.79-.09v4.35c-.21-.04-.43-.06-.65-.06-1.19 0-2.31.61-2.31 2.12 0 1.2 1.09 2.46 3.06 2.46Z"/></svg>}
             />
           </ScrollReveal>

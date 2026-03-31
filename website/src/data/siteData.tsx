@@ -93,8 +93,9 @@ export const FAQ = [
 ];
 
 export const RELEASES = [
-  { version: 'Latest', date: '2026', notes: 'Major Update: Built-in AI, Project Explorer, Command Palette, Templates, Pro Animator, Offline Mode, and more.' },
-  { version: 'Previous', date: '2025', notes: 'Initial release with Monaco IDE, 3D simulation, and basic AI integration.' }
+  { version: 'v1.2.1', date: 'Mar 2026', notes: 'Stabilization: Fixed AI modal auto-pop-up Bug, Added AI timeouts, improved session persistence, and refined UI and state management.' },
+  { version: 'v1.2.0', date: 'Mar 2026', notes: 'Major Update: Built-in AI, Project Explorer, Command Palette, Templates, Pro Animator, Offline Mode, and more.' },
+  { version: 'v1.1.0', date: 'Jan 2026', notes: 'Initial release with Monaco IDE, 3D simulation, and basic AI integration.' }
 ];
 
 export const COMMANDS = [
