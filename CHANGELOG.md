@@ -7,6 +7,17 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ---
 
+## [1.2.3] — 2026-04-01
+
+### 🚀 Layout & Responsiveness Refinement
+
+This patch release focuses on optimizing the IDE's layout for a more fluid and responsive experience during panel resizing.
+
+#### Fixed
+- **Layout Responsiveness** — Removed hardcoded dimensions from major IDE panels (Explorer, Animator, Output, and Sidebars). All components now use dynamic scaling (w-full/h-full/flex-1) to ensure seamless compatibility with the draggable workspace system.
+
+---
+
 ## [1.2.2] — 2026-03-31
 
 ### 🚀 In-App Updates & UI Visual Polish

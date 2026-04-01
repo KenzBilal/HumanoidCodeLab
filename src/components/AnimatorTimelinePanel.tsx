@@ -236,7 +236,7 @@ export function AnimatorTimelinePanel({ bot }: { bot: Humanoid | null }) {
 
   if (!activeAnim) {
     return (
-      <div className="h-[220px] bg-[#21252b] border-t border-[#181a1f] flex items-center justify-center text-[#5c6370] text-[12px]">
+      <div className="bg-[#21252b] border-t border-[#181a1f] flex items-center justify-center text-[#5c6370] text-[12px] h-full w-full min-h-[100px]">
         Select an animation to view timeline
       </div>
     );
@@ -245,9 +245,9 @@ export function AnimatorTimelinePanel({ bot }: { bot: Humanoid | null }) {
   const duration = activeAnim.duration;
 
   return (
-    <div className="h-[220px] bg-[#21252b] border-t border-[#181a1f] flex flex-col shrink-0 select-none">
+    <div className="bg-[#21252b] border-t border-[#181a1f] flex flex-col select-none h-full w-full">
       {/* Header */}
-      <div className="h-[32px] bg-[#282c34] border-b border-[#181a1f] flex items-center px-3 justify-between shrink-0">
+      <div className="bg-[#282c34] border-b border-[#181a1f] flex items-center px-3 justify-between h-8">
         <span className="text-[11px] font-bold text-[#5c6370] tracking-wider">TIMELINE</span>
         <div className="flex items-center gap-2">
           <button
@@ -267,7 +267,7 @@ export function AnimatorTimelinePanel({ bot }: { bot: Humanoid | null }) {
       </div>
 
       {/* Ruler */}
-      <div className="h-[20px] bg-[#1e2227] flex items-end relative shrink-0 px-0">
+      <div className="h-5 bg-[#1e2227] flex items-end relative px-0">
         {ticks.map(t => (
           <div
             key={t}
@@ -333,7 +333,7 @@ export function AnimatorTimelinePanel({ bot }: { bot: Humanoid | null }) {
       </div>
 
       {/* Playback Controls */}
-      <div className="h-[36px] bg-[#1e2227] border-t border-[#181a1f] flex items-center px-3 gap-2 shrink-0">
+      <div className="h-9 bg-[#1e2227] border-t border-[#181a1f] flex items-center px-3 gap-2">
         <button
           onClick={() => { stopPlayback(); store.setPlaybackTime(0); if (bot && activeAnim) bot.scrubTo(activeAnim, 0); }}
           className="text-[#abb2bf] hover:text-white text-[14px] cursor-pointer px-1"

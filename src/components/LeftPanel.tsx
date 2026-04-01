@@ -58,7 +58,7 @@ export function LeftPanel({ bot }: { bot: Humanoid | null }) {
   };
 
   return (
-    <div className="w-[200px] bg-[#333842] border-r border-[#181a1f] flex flex-col shrink-0 overflow-hidden text-ellipsis">
+    <div className="bg-[#333842] border-r border-[#181a1f] flex flex-col overflow-hidden text-ellipsis w-full h-full">
       <h3 className="text-[14px] font-semibold text-[#abb2bf] px-4 py-3 border-b border-[#181a1f] bg-[#2b2f36]">
         Body Parts
       </h3>

@@ -223,9 +223,15 @@ export default function App() {
               </Panel>
               
               <PanelResizeHandle className="w-1.5 bg-[#181a1f] hover:bg-purple-500 active:bg-purple-400 transition-all cursor-col-resize z-10" />
+
+              <Panel defaultSize={10} minSize={8} maxSize={15}>
+                <LeftPanel bot={bot} />
+              </Panel>
+              
+              <PanelResizeHandle className="w-1.5 bg-[#181a1f] hover:bg-purple-500 active:bg-purple-400 transition-all cursor-col-resize z-10" />
               
               {/* Center Section - Viewport + Output */}
-              <PanelGroup orientation="vertical" id="center-section">
+              <PanelGroup orientation="vertical" autoSave="hcl-center-layout">
                 <Panel defaultSize={65} minSize={50} maxSize={80}>
                   <Viewport onBotReady={setBot} />
                 </Panel>

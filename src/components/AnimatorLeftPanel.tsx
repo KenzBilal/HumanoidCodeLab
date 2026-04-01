@@ -119,8 +119,8 @@ export function AnimatorLeftPanel() {
   };
 
   return (
-    <div className="w-[250px] bg-[#21252b] border-r border-[#181a1f] flex flex-col shrink-0">
-      <div className="h-[32px] bg-[#282c34] border-b border-[#181a1f] flex items-center px-3 text-[11px] font-bold text-[#abb2bf] tracking-wider shrink-0 justify-between">
+    <div className="bg-[#21252b] border-r border-[#181a1f] flex flex-col w-full h-full">
+      <div className="bg-[#282c34] border-b border-[#181a1f] flex items-center px-3 text-[11px] font-bold text-[#abb2bf] tracking-wider justify-between h-8">
         <span>ANIMATIONS</span>
         <button
           onClick={handleCreate}
@@ -181,7 +181,7 @@ export function AnimatorLeftPanel() {
       </div>
 
       {/* Footer actions */}
-      <div className="border-t border-[#181a1f] flex shrink-0">
+      <div className="border-t border-[#181a1f] flex">
         <button
           onClick={handleImport}
           className="flex-1 py-2 text-[10px] text-[#5c6370] hover:text-[#abb2bf] hover:bg-[#282c34] transition-colors"

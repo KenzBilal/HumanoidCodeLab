@@ -112,7 +112,7 @@ export function FileTreePanel() {
   };
 
   return (
-    <div className="w-[200px] bg-[#21252b] border-r border-[#181a1f] flex flex-col h-full">
+    <div className="bg-[#21252b] border-r border-[#181a1f] flex flex-col h-full w-full">
       <div className="px-3 py-2 border-b border-[#181a1f] flex items-center justify-between">
         <span className="text-[13px] font-semibold text-[#abb2bf] uppercase">Explorer</span>
         <div className="relative">

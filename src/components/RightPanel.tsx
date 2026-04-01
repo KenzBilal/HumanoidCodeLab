@@ -140,8 +140,8 @@ export function RightPanel({ bot, onRun }: { bot: Humanoid | null, onRun: () => 
   };
 
   return (
-    <div className="flex-1 min-w-0 md:flex bg-[#15171c] border-l border-[#3a3f4a] flex-col shrink-0 h-full overflow-hidden">
-      <div className="px-4 py-3 border-b border-[#3a3f4a] flex items-center gap-2 shrink-0 bg-[#0d0f12]">
+    <div className="flex-1 min-w-0 md:flex bg-[#15171c] border-l border-[#3a3f4a] flex-col h-full overflow-hidden w-full">
+      <div className="px-4 py-3 border-b border-[#3a3f4a] flex items-center gap-2 bg-[#0d0f12]">
         <button 
           onClick={handleSave}
           className="px-4 py-1.5 rounded text-[13px] font-semibold transition-all duration-200 bg-[#8b5cf6] text-white hover:bg-[#a78bfa] hover:shadow-lg hover:shadow-purple-500/30 cursor-pointer"

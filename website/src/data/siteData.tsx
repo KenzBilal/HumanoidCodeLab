@@ -93,6 +93,7 @@ export const FAQ = [
 ];
 
 export const RELEASES = [
+  { version: 'v1.2.3', date: 'Apr 2026', notes: 'Patch: Refined panel layout responsiveness, removing fixed dimensions for a more fluid workspace experience.' },
   { version: 'v1.2.2', date: 'Mar 2026', notes: 'Patch: New in-app update trigger, improved workspace resizing visuals, and core metadata synchronization.' },
   { version: 'v1.2.1', date: 'Mar 2026', notes: 'Stabilization: Fixed AI modal auto-pop-up Bug, Added AI timeouts, improved session persistence, and refined UI and state management.' },
   { version: 'v1.2.0', date: 'Mar 2026', notes: 'Major Update: Built-in AI, Project Explorer, Command Palette, Templates, Pro Animator, Offline Mode, and more.' },

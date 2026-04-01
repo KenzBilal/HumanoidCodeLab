@@ -166,7 +166,7 @@ const handleReset = async () => {
 
   return (
     <>
-      <div className="h-[42px] bg-[#2b2f36] border-b border-[#181a1f] flex items-center justify-between px-4 shrink-0 shadow-sm z-10">
+      <div className="h-[42px] bg-[#2b2f36] border-b border-[#181a1f] flex items-center justify-between px-4 shadow-sm z-10">
         <div className="flex items-center gap-4 text-[13px] text-[#abb2bf] font-medium h-full">
           <span
             onClick={() => setView('editor')}

@@ -209,7 +209,7 @@ export function AnimatorRightPanel({ bot }: { bot: Humanoid | null }) {
 
   if (!activeAnim || !activeKf) {
     return (
-      <div className="w-[300px] bg-[#21252b] border-l border-[#181a1f] flex flex-col shrink-0 items-center justify-center text-[#5c6370] text-[13px] p-6 text-center gap-2">
+      <div className="bg-[#21252b] border-l border-[#181a1f] flex flex-col items-center justify-center text-[#5c6370] text-[13px] p-6 text-center gap-2 w-full h-full">
         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#5c6370" strokeWidth="1.5">
           <circle cx="12" cy="12" r="10" />
           <path d="M8 14s1.5 2 4 2 4-2 4-2" />
@@ -226,9 +226,9 @@ export function AnimatorRightPanel({ bot }: { bot: Humanoid | null }) {
     : null;
 
   return (
-    <div className="w-[300px] bg-[#21252b] border-l border-[#181a1f] flex flex-col shrink-0 overflow-hidden">
+    <div className="bg-[#21252b] border-l border-[#181a1f] flex flex-col overflow-hidden w-full h-full">
       {/* Header */}
-      <div className="h-[32px] bg-[#282c34] border-b border-[#181a1f] flex items-center px-3 text-[11px] font-bold text-[#abb2bf] tracking-wider shrink-0 justify-between">
+      <div className="bg-[#282c34] border-b border-[#181a1f] flex items-center px-3 text-[11px] font-bold text-[#abb2bf] tracking-wider justify-between h-8">
         <span>ANIMATION</span>
         <div className="flex gap-2">
           <button onClick={handleResetPose} className="text-[#e5c07b] hover:text-white transition-colors cursor-pointer" title="Reset Pose">

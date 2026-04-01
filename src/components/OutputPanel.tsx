@@ -27,8 +27,8 @@ export function OutputPanel() {
   };
 
   return (
-    <div className="h-[200px] bg-[#282c34] border-t border-[#181a1f] flex flex-col shrink-0">
-      <div className="px-4 py-2 border-b border-[#181a1f] flex items-center justify-between shrink-0 bg-[#21252b]">
+    <div className="bg-[#282c34] border-t border-[#181a1f] flex flex-col h-full w-full">
+      <div className="px-4 py-2 border-b border-[#181a1f] flex items-center justify-between bg-[#21252b]">
         <span className="text-[13px] font-semibold text-[#abb2bf] uppercase tracking-wider">Output</span>
         <button 
           onClick={clearLogs}
